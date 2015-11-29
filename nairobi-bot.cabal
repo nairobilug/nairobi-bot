@@ -1,0 +1,64 @@
+name:                nairobi-bot
+version:             0.0.0.1
+synopsis:            IRC bot written in haskell.
+description:         Please see README.md
+homepage:            http://github.com/githubuser/nairobi-bot#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Njagi Mwaniki
+maintainer:          njagi@urbanslug.com
+copyright:           2015, Njagi Mwaniki
+category:            IRC
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Bot
+
+  other-modules:       Bot.Types
+                     , Bot.Reputation
+                     , Bot.Seen
+                     , Bot.Echo
+                     , Bot.NowPlaying
+                     , Bot.Define
+
+  build-depends:       base >= 4.7 && < 5
+                     , auto >= 0.4 && < 0.6
+                     , simpleirc >= 0.3 && < 0.4
+                     , aeson >= 0.8 && < 0.11
+                     , bytestring >= 0.10 && < 0.12
+                     , cereal >= 0.4 && < 0.6
+                     , containers >= 0.5 && < 0.6
+                     , lens >= 4.12 && < 4.14
+                     , tagsoup >= 0.13 && < 0.15
+                     , time >= 1.5 && < 1.7
+                     , transformers >= 0.4 && < 0.6
+                     , text >= 1.2 && < 1.3
+                     , network >= 2.6 && < 2.7
+                     , unordered-containers >= 0.2 && < 0.4
+                     , vector >= 0.10 && < 0.12
+                     , wreq >= 0.4 && < 0.6
+  default-language:    Haskell2010
+
+executable nairobi-bot-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , nairobi-bot
+  default-language:    Haskell2010
+
+test-suite nairobi-bot-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , nairobi-bot
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/githubuser/nairobi-bot
