@@ -1,19 +1,30 @@
+{-|
+Module      : Bot.NowPlaying
+Description : Fetch the currently playing song from <http://www.last.fm>
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 {-# LANGUAGE OverloadedStrings, Arrows #-}
-module Bot.NowPlaying where
+module Bot.NowPlaying (npBot) where
 
 import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Auto
 import Control.Monad.IO.Class (liftIO, MonadIO)
-import Network
 import Data.Aeson (decode)
 import Control.Auto.Effects (arrMB)
 import Control.Auto.Blip 
 import qualified Data.Map as M
 import Data.Text (unpack)
-import System.Environment (getEnv)
 
 import Bot.Types
-import Bot.Network
+import Bot.Network (getJSON)
+import Data.Bot.Config
+
+
 
 npBot :: MonadIO a => RoomBot a
 npBot = proc (InMessage nick msg _ _) -> do
@@ -65,15 +76,29 @@ npBot = proc (InMessage nick msg _ _) -> do
     showMaybeNP :: Maybe NowPlaying -> String
     showMaybeNP (Just (NowPlaying song' artist' album')) = 
       " is listeing to \"" ++ (unpack song') ++ "\" by " 
-      ++ (unpack artist') ++ " from the album " 
-      ++ (unpack album') ++ "."
+      ++ (unpack artist') ++ " from the album \"" 
+      ++ (unpack album') ++ "\"."
     showMaybeNP Nothing = 
-      "Not found. Please report a bug at: https://github.com/urbanslug/nairobi-bot/issues"
-      
-    
+      "Not found. If you're sure the user is on last.fm \
+       \ and have a proper API key. \
+       \Please report a bug at: \
+       \https://github.com/urbanslug/nairobi-bot/issues"
+
+
     getNP :: (Username, Nick) -> IO Message
     getNP (uname, nick) = do
-      appId <- getEnv "lastfm_appid"
+      appId' <- appID
+      appId <- case appId' of
+              "" -> fail "You haven't set your last.fm API key. Fix your config.yaml."
+              idd -> return idd
       json  <- getJSON $ "http://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=" 
                          ++ uname ++ "&api_key="++ appId ++"&limit=1&format=json"
       return $ ( ((++) nick) . showMaybeNP . decode) json
+
+appID :: IO String
+appID = do 
+  conf' <- getConfig
+  let conf = case conf' of
+               Just c -> c
+               Nothing -> Config "" "" [] "" "" -- Fail silently because the configs are not a must here.
+  return $ lastFm conf

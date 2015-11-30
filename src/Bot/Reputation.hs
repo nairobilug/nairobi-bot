@@ -1,12 +1,23 @@
+{-|
+Module      : Bot.Reputation
+Description : Give people points or subtruct them.
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
 {-# LANGUAGE Arrows #-}
 module Bot.Reputation where
 
 import Control.Auto
 import Control.Auto.Blip
 import Data.Map as M
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 
 import Bot.Types
+
+
 
 repBot :: Monad m => RoomBot m
 repBot = proc (InMessage nick msg _ _) -> do
@@ -35,12 +46,14 @@ repBot = proc (InMessage nick msg _ _) -> do
             "@addRep":nick:_ | nick /= updater -> Just (nick, 1)
             "@subRep":nick:_                   -> Just (nick, -1)
             _                                  -> Nothing
+    
     trackReps :: Monad m => Auto m (Blip (Nick, Int)) (Map Nick Int)
     trackReps = scanB (\mp (nick, change) -> M.insertWith (+) nick change mp) M.empty
+    
     queryBlips :: Auto m Message (Blip Nick)
     queryBlips = emitJusts (getRequest . words)
       where
         getRequest ("@addRep":_)   = Just ""
         getRequest ("@subRep":_)   = Just ""
-        getRequest ("@rep":nick:_)  = Just nick
-        getRequest _                = Nothing
+        getRequest ("@rep":nick:_) = Just nick
+        getRequest _               = Nothing

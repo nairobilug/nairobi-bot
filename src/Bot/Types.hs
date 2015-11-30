@@ -1,5 +1,16 @@
+{-|
+Module      : Bot.Types
+Description : A home for all the types used in nairobi-bot
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 {-|
 These types are specific to chatbot and are not irc related.
@@ -9,7 +20,7 @@ module Bot.Types where
 
 import Control.Auto.Blip
 import Control.Auto
--- -- import Data.Monoid
+
 import qualified Data.Map as M
 import Data.Time
 import Data.Serialize
@@ -20,12 +31,17 @@ import Data.Text
 
 import qualified Data.Vector as V
 
+-- Config
+import GHC.Generics
+
 type Nick    = String
 type Channel = String
 type Message = String
 
 type URL = String
 type Username = String
+
+type Query = String
 
 data InMessage = InMessage { _inMessageNick   :: Nick
                            , _inMessageBody   :: Message
@@ -128,3 +144,13 @@ instance FromJSON Definition where
                              ) x
       _ -> fail "No array in related topics."
   parseJSON _ = fail "No JSON object in JSON file."
+
+-- config
+data Config = Config { network      :: String
+                     , name         :: String
+                     , channels     :: [String]
+                     , wolframAlpha :: String
+                     , lastFm       :: String
+                     } deriving (Show, Generic)
+
+instance FromJSON Config

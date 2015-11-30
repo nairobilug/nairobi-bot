@@ -1,3 +1,13 @@
+{-|
+Module      : Bot
+Description : The Bot itself.
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Bot where
@@ -9,23 +19,22 @@ import Control.Auto.Serialize   (serializing')
 import Control.Monad            (void, forever)
 import Control.Monad.IO.Class
 import Data.Foldable            (forM_)
--- import Data.Map                 (Map)
--- import Data.Serialize
 import Data.Text hiding         (words, unwords, map)
 import Data.Text.Encoding
--- import Data.Text.Encoding.Error
 import Data.Time
 import Network.SimpleIRC
 import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
 import qualified Data.Map       as M
 
--- Internal modules.
 import Bot.Types
 import Bot.Reputation
+import Bot.Wolfram
 import Bot.Seen
 import Bot.Echo
 import Bot.NowPlaying
 import Bot.Define
+import Data.Bot.Config
+import Bot.URL
 
 withIrcConf :: IrcConfig -> ChatBot IO -> IO ()
 withIrcConf ircconf chatbot = do
@@ -70,21 +79,27 @@ withIrcConf ircconf chatbot = do
         (Nothing, Just _)  -> undefined
         (Nothing, Nothing) -> undefined
 
--- |Specific to freenode; bot name is "zippy-bot".
-freenode :: IrcConfig
-freenode = (mkDefaultConfig "irc.freenode.net" "zippy-bot")
-            { cChannels = channels -- Channels to join on connect
-            }
+-- |Specific to freenode; bot name is "nairobi-bot".
+freenode :: String   -- | network
+         -> String   -- | name
+         -> [String] -- | channel list
+         -> IrcConfig
+freenode network' botName chans = (mkDefaultConfig network' botName)
+                        { cChannels = (channels' chans) -- Channels to join on connect
+                        }
 
 -- |The channels we want to the bot to join join.
-channels :: [Channel]
-channels = ["#zippy"]
+channels' :: [String] -- | Channel list from yaml file without hashes.
+          -> [Channel]
+channels' chans = map ('#':) chans
 
 chatBot :: MonadIO m => ChatBot m
 chatBot = mconcat [ serializing' "rep.dat" $ perRoom repBot
                   , serializing' "seen.dat" $ perRoom seenBot
                   , perRoom echoBot
                   , perRoom defineBot
+                  , perRoom waBot
+                  , perRoom urlBot
                   , serializing' "np.dat" $ perRoom npBot
                   ]
 
@@ -92,17 +107,20 @@ chatBot = mconcat [ serializing' "rep.dat" $ perRoom repBot
 -- bot is main
 main :: IO ()
 main = do
-       withIrcConf freenode chatBot
+       conf <- getConfig
+       -- A failure of configs here means a failure in the entire bot.
+       config <-
+         case conf of
+           Just c  -> return c
+           Nothing -> fail "Can't find bot name or channel list.\
+                           \Fix your config.yaml \
+                           \if that fails report a bug at \
+                           \https://github.com/nairobilug/nairobi-bot/issues"
+       let botName = name config
+           network' = network config
+           channelList = channels config
+       withIrcConf (freenode network' botName channelList) chatBot
        forever (threadDelay 1000000000)
-
-{-
-runOnChanM :: Monad m
-           => (forall c. m c -> IO c)   -- convert `m` to `IO`
-           -> (b -> IO Bool)            -- handle output
-           -> Chan a                    -- chan to await input on
-           -> Auto m a b                -- `Auto` to run
-           -> IO (Auto m a b)
--}
 
 perRoom :: Monad m => RoomBot m -> ChatBot m
 perRoom rb = proc inp@(InMessage _ _ src _) -> do

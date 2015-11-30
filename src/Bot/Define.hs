@@ -1,3 +1,13 @@
+{-|
+Module      : Bot.Define
+Description : Get the definitions of words and phrases from <https://duckduckgo.com/>
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.Define where
 
@@ -15,7 +25,7 @@ import Data.Text (unpack)
 import Bot.Network
 import Bot.Types
 
-type Query = String
+
 
 defineBot :: MonadIO m => RoomBot m
 defineBot = proc (InMessage _ msg _ _) -> do 

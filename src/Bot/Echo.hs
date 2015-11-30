@@ -1,3 +1,12 @@
+{-|
+Module      : Bot.Echo
+Description : Simply echo what it recieves.
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
 {-# LANGUAGE Arrows #-}
 module Bot.Echo where
 
@@ -6,6 +15,8 @@ import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.C
 import Control.Monad.IO.Class (MonadIO)
 
 import Bot.Types
+
+
 
 echoBot :: MonadIO m => RoomBot m
 echoBot = proc (InMessage _ msg _ _) -> do
