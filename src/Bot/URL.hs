@@ -20,8 +20,6 @@ import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.C
 import Control.Auto.Effects (arrMB)
 
 import Bot.Types
-import Bot.Network (sendWaQuery)
-import Data.Bot.Config (getConfig)
 
 -- Heavy lifting
 import Bot.Network (getWebPage)
@@ -33,6 +31,7 @@ import qualified Data.String as S
 import qualified Data.List as L
 import Text.HTML.TagSoup -- (parseTags, maybeTagText, Tag, Attribute, (~==))
 import Text.HTML.TagSoup.Match
+
 
 urlBot :: MonadIO a => RoomBot a
 urlBot = proc (InMessage _ msg _ _) -> do
@@ -64,8 +63,11 @@ urlBot = proc (InMessage _ msg _ _) -> do
     urlList (x:xs) =
       if isStringUrl x
          then do
-           b <- extractTitle x
-           fmap (b :) (urlList xs)
+           title' <- extractTitle x
+           let title = if title' == "Notfound.org"
+                          then "The webpage could not be fetched due to a HTTP exception. Not our fault."
+                          else title'
+           fmap (title :) (urlList xs)
          else urlList xs
 
 
@@ -74,7 +76,7 @@ urlBot = proc (InMessage _ msg _ _) -> do
 extractTitle :: String -- | URL
              -> IO T.Text -- | Title
 extractTitle url = do
-  webpage <- getWebPage url -- webpage :: L.ByteString
+  webpage <- getWebPage url  -- webpage :: L.ByteString
   let matchAttr = (\x -> if x == []
                             then True
                             else False)

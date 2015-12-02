@@ -16,7 +16,7 @@
 * define `@define <word/phrase>`
 * echo `@echo <sentence you want to echo>`
 * wolfram alpha `@wa <search query>`
-* URLs *Automatically fetches page titles from URLs.*
+* URLs *Automatically fetches page titles from URLs. Except for [http://notfound.org/](http://notfound.org/) long story.*
 
 ###### Maybe later if need be
 * google/duckduckgo `@search <search query>`

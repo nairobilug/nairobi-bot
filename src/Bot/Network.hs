@@ -8,6 +8,8 @@ Stability   : experimental
 Portability : POSIX
 -}
 
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
+
 module Bot.Network
 ( getJSON
 , sendWaQuery
@@ -21,6 +23,9 @@ import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.String as S
 import qualified Data.Text as T
+
+import Control.Exception.Base (catch)
+import Network.HTTP.Client (HttpException(..))
 
 import Bot.Types
 
@@ -58,5 +63,6 @@ sendWaQuery query id' = do
 getWebPage :: String -- | Url
             -> IO L.ByteString -- | Webpage
 getWebPage url = do
-  response <- get url
+  response <- get url `catch` (\(_ :: HttpException) -> get "http://notfound.org/")
   return $ response ^. responseBody
+  
