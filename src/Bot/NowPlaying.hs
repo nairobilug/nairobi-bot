@@ -75,7 +75,7 @@ npBot = proc (InMessage nick msg _ _) -> do
 
     showMaybeNP :: Maybe NowPlaying -> String
     showMaybeNP (Just (NowPlaying song' artist' album')) = 
-      " is listeing to \"" ++ (unpack song') ++ "\" by " 
+      " is listening to \"" ++ (unpack song') ++ "\" by " 
       ++ (unpack artist') ++ " from the album \"" 
       ++ (unpack album') ++ "\"."
     showMaybeNP Nothing = 
