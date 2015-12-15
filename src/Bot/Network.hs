@@ -20,14 +20,19 @@ import Network.Wreq
 import Control.Lens
 import qualified Data.ByteString.Lazy as L
 
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.String as S
 import qualified Data.Text as T
 
-import Control.Exception.Base (catch)
+
+-- import Control.Monad (when)
+-- import Control.Exception.Base (catch)
+import Control.Exception (try)
 import Network.HTTP.Client (HttpException(..))
 
 import Bot.Types
+
 
 
 
@@ -61,8 +66,11 @@ sendWaQuery query id' = do
 -}
 
 getWebPage :: String -- | Url
-            -> IO L.ByteString -- | Webpage
+            -> IO (Either String L.ByteString) -- | Either "HttpError" Webpage 
 getWebPage url = do
-  response <- get url `catch` (\(_ :: HttpException) -> get "http://notfound.org/")
-  return $ response ^. responseBody
-  
+  eResponse <- try
+                 (get url) :: IO (Either HttpException (Response L.ByteString) )
+  case eResponse of
+    Right response -> return $ Right $ response ^. responseBody
+    Left ex -> return $ Left $ "HTTP Exception: " ++ show ex
+

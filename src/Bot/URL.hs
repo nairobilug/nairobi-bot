@@ -76,16 +76,19 @@ urlBot = proc (InMessage _ msg _ _) -> do
 extractTitle :: String -- | URL
              -> IO T.Text -- | Title
 extractTitle url = do
-  webpage <- getWebPage url  -- webpage :: L.ByteString
-  let matchAttr = (\x -> if x == []
-                            then True
-                            else False)
-      parsed =  parseTags webpage
-      content = getTagContent (S.fromString "title") matchAttr parsed
-      (maybeResult:_) = fmap maybeTagText content
-  case maybeResult of
-    Just result ->  return $ TE.decodeUtf8 $ LB.toStrict result -- To do: handle web pages that don't use UTF8
-    Nothing     -> return "Could not fetch a title for that URL. \
-                          \If it's not a problem with your URL maybe the \
-                          \page uses a different encoding from UTF8. If not, \
-                          \report a bug at: https://github.com/nairobilug/nairobi-bot/issues"
+  eitherWebPage <- getWebPage url  -- webpage :: L.ByteString
+  case eitherWebPage of
+    Right webpage -> do
+      let matchAttr = (\x -> if x == []
+                                then True
+                                else False)
+          parsed =  parseTags webpage
+          content = getTagContent (S.fromString "title") matchAttr parsed
+          (maybeResult:_) = fmap maybeTagText content
+      case maybeResult of
+        Just result ->  return $ TE.decodeUtf8 $ LB.toStrict result -- To do: handle web pages that don't use UTF8
+        Nothing     -> return "Could not fetch a title for that URL. \
+                              \If it's not a problem with your URL maybe the \
+                              \page uses a different encoding from UTF8. If not, \
+                              \report a bug at: https://github.com/nairobilug/nairobi-bot/issues"
+    Left ex -> return $ T.pack $ "Fetching page title failed due to " ++ ex

@@ -5,5 +5,5 @@ channels:
   - nairobilug
 
 # API keys
-wolframAlpha: <API KEY>
-lastFm: <API KEY>
+wolframAlpha: <API-KEY>
+lastFm: <API-KEY>

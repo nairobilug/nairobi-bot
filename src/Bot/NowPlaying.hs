@@ -21,7 +21,7 @@ import qualified Data.Map as M
 import Data.Text (unpack)
 
 import Bot.Types
-import Bot.Network (getJSON)
+import Bot.Network (getWebPage)
 import Data.Bot.Config
 
 
@@ -75,11 +75,11 @@ npBot = proc (InMessage nick msg _ _) -> do
 
     showMaybeNP :: Maybe NowPlaying -> String
     showMaybeNP (Just (NowPlaying song' artist' album')) = 
-      " is listeing to \"" ++ (unpack song') ++ "\" by " 
+      " is listening to \"" ++ (unpack song') ++ "\" by " 
       ++ (unpack artist') ++ " from the album \"" 
       ++ (unpack album') ++ "\"."
     showMaybeNP Nothing = 
-      "Not found. If you're sure the user is on last.fm \
+      " Not found. If you're sure the user is on last.fm \
        \ and have a proper API key. \
        \Please report a bug at: \
        \https://github.com/urbanslug/nairobi-bot/issues"
@@ -91,9 +91,11 @@ npBot = proc (InMessage nick msg _ _) -> do
       appId <- case appId' of
               "" -> fail "You haven't set your last.fm API key. Fix your config.yaml."
               idd -> return idd
-      json  <- getJSON $ "http://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=" 
-                         ++ uname ++ "&api_key="++ appId ++"&limit=1&format=json"
-      return $ ( ((++) nick) . showMaybeNP . decode) json
+      eitherJSON  <- getWebPage $ "http://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=" 
+                          ++ uname ++ "&api_key="++ appId ++"&limit=1&format=json"
+      case eitherJSON of
+        Right json -> return $ ( ((++) nick) . showMaybeNP . decode) json
+        Left ex -> return $ "Now playing failed due to " ++ ex
 
 appID :: IO String
 appID = do 

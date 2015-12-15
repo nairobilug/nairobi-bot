@@ -26,7 +26,10 @@ library
                      , Bot.NowPlaying
                      , Bot.Define
                      , Bot.URL
+                     , Bot.Help
+                     , Bot.Meetup
                      , Data.Bot.Config
+
 
   build-depends:       base >= 4.7 && < 5
                      , auto >= 0.4 && < 0.6
