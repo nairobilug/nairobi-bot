@@ -27,7 +27,6 @@ library
                      , Bot.Define
                      , Bot.URL
                      , Bot.Help
-                     , Bot.Meetup
                      , Data.Bot.Config
 
 
