@@ -52,6 +52,10 @@ defineBot = proc (InMessage _ msg _ _) -> do
     getDefine query = 
       let decode' = decode :: L.ByteString -> Maybe Definition
           url = "http://api.duckduckgo.com/?q="++query++"&format=json"
-      in fmap (showMaybeDef . decode') $ getJSON url
+      in do 
+        eitherJSON <- getWebPage url -- fmap (showMaybeDef . decode') $ getJSON url
+        case eitherJSON of
+          Right json -> return $ (showMaybeDef . decode') json
+          Left ex -> return $ "Now playing failed due to " ++ ex
 
 

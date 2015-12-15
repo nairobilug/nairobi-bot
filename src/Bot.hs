@@ -35,6 +35,8 @@ import Bot.NowPlaying
 import Bot.Define
 import Data.Bot.Config
 import Bot.URL
+import Bot.Help
+import Bot.Meetup
 
 withIrcConf :: IrcConfig -> ChatBot IO -> IO ()
 withIrcConf ircconf chatbot = do
@@ -100,6 +102,8 @@ chatBot = mconcat [ serializing' "rep.dat" $ perRoom repBot
                   , perRoom defineBot
                   , perRoom waBot
                   , perRoom urlBot
+                  , perRoom helpBot
+                  , perRoom meetupBot
                   , serializing' "np.dat" $ perRoom npBot
                   ]
 
