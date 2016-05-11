@@ -35,7 +35,7 @@ waBot :: MonadIO a => RoomBot a
 waBot = proc (InMessage _ msg _ _) -> do
 
   blipQuery <- emitJusts getQuery -< msg
-  
+
   result <- arrMB (liftIO . getWolfram) -< blipQuery
 
   id -< (: []) <$> result
@@ -89,7 +89,7 @@ getTagList query = do
 matchAttr :: [Attribute L.ByteString] -> Bool
 matchAttr [] = False
 matchAttr (x:xs)
-  | x == ("id", "Result") = True
+  | x == ("title", "Result") = True
   | otherwise = matchAttr xs
 
 matchPlainText :: [Attribute L.ByteString] -> Bool
