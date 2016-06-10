@@ -1,6 +1,9 @@
 # Nairobilug IRC bot
 [Nairobilug](https://github.com/nairobilug/) IRC bot in haskell taking advantage of discrete events (some will call it FRP) in haskell.
 
+[![Build Status](https://travis-ci.org/nairobilug/nairobi-bot.svg?branch=master)](https://travis-ci.org/nairobilug/nairobi-bot)
+[![Hackage](https://img.shields.io/hackage/v/nairobi-bot.svg?maxAge=2592000)](https://hackage.haskell.org/package/nairobi-bot)
+
 
 #### Usage
 * seen `@seen <nick>`
