@@ -44,8 +44,8 @@ repBot = proc (InMessage nick msg _ _) -> do
           in if nick' == nick
              then Just ("Insult", 0)
              else case trigger of
-              "@addRep" -> Just (nick', 1)
-              "@subRep" -> Just (nick', -1)
+              "+1" -> Just (nick', 1)
+              "-1" -> Just (nick', -1)
               "@rep"    -> Just (nick', 0)
               _         -> Nothing
 

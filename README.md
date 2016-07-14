@@ -9,8 +9,8 @@
 * seen `@seen <nick>`
 * reputation
   - Check reputation `@rep <nick>`
-  - Add reputation `@addRep <nick>`
-  - Subtract reputation `@subRep <nick>`
+  - Add reputation `+1 <nick>`
+  - Subtract reputation `-1 <nick>`
 * last fm
   *Setting a new username for your nick replaces the older one.*
   - `@np set <username>` to associate a last.fm username with your nick.
