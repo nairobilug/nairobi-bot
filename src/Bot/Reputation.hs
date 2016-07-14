@@ -29,9 +29,9 @@ repBot = proc (InMessage nick msg _ _) -> do
         lookupRep (nick', _) =
           case nick' of
            "Insult"        -> ["Operation not allowed, dumbass!"]
-           _ -> [nick ++ " has a reputation of " ++ show rep ++ "."]
+           _ -> [nick' ++ " has a reputation of " ++ show rep ++ "."]
            where
-             rep = M.findWithDefault 0 nick reps
+             rep = M.findWithDefault 0 nick' reps
 
     id -< lookupRep <$> queryB
   where
@@ -39,16 +39,15 @@ repBot = proc (InMessage nick msg _ _) -> do
     queryBlips =  emitJusts getRequest
       where
         getRequest (nick, msg) =
-          let (trigger:nick':_) = words msg
-
-          in if nick' == nick
-             then Just ("Insult", 0)
-             else case trigger of
-              "+1" -> Just (nick', 1)
-              "-1" -> Just (nick', -1)
-              "@rep"    -> Just (nick', 0)
+          case words msg of
+              "+1":nick':_ -> if nick /= nick'
+                               then Just (nick', 1)
+                               else Just ("Insult", 0)
+              "-1":nick':_ ->  if nick /= nick'
+                                 then Just (nick', -1)
+                                 else Just ("Insult", 0)
+              "@rep":nick':_    -> Just (nick', 0)
               _         -> Nothing
-
 
     trackReps :: Auto m (Blip (Nick, Int)) (Map Nick Int)
     trackReps = scanB (\mp (nick, change) -> M.insertWith (+) nick change mp) M.empty
