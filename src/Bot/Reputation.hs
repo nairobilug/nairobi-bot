@@ -1,7 +1,7 @@
 {-|
 Module      : Bot.Reputation
 Description : Give people points or subtruct them.
-Copyright   : (c) 2015, Njagi Mwaniki 
+Copyright   : (c) 2015, Njagi Mwaniki
 License     : BSD3
 Maintainer  : njagi@urbanslug.com
 Stability   : experimental
@@ -52,4 +52,3 @@ repBot = proc (InMessage nick msg _ _) -> do
 
     trackReps :: Auto m (Blip (Nick, Int)) (Map Nick Int)
     trackReps = scanB (\mp (nick, change) -> M.insertWith (+) nick change mp) M.empty
-
