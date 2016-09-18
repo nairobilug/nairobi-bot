@@ -1,6 +1,6 @@
 # Bot specific
 network: irc.freenode.net
-name: zipper-bot
+name: nairobi-bot
 channels:
   - nairobilug
 
