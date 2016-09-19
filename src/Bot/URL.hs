@@ -1,7 +1,7 @@
 {-|
 Module      : Bot.URL
 Description : Fetch the page title and description of a webpage given the url.
-Copyright   : (c) 2015, Njagi Mwaniki 
+Copyright   : (c) 2015, Njagi Mwaniki
 License     : BSD3
 Maintainer  : njagi@urbanslug.com
 Stability   : experimental
@@ -46,7 +46,7 @@ urlBot = proc (InMessage _ msg _ _) -> do
     -- Does the message contain a url one or more?
     -- If so give us back the message. If not, ignore it.
     containsUrl :: Message -> Maybe Message
-    containsUrl msg = 
+    containsUrl msg =
       if foldr (||) False $ map isStringUrl $ S.words msg
          then Just msg
          else Nothing
@@ -54,7 +54,7 @@ urlBot = proc (InMessage _ msg _ _) -> do
     isStringUrl :: String -> Bool
     isStringUrl str = "://" `L.isInfixOf` str
                    || "://" `L.isInfixOf` str
-    
+
     getTitle :: Message -> IO Message
     getTitle msg = fmap (("Title: "++) . (L.intercalate "\nTitle: "))  $ fmap (map T.unpack) $ urlList $ S.words msg
 
@@ -71,8 +71,6 @@ urlBot = proc (InMessage _ msg _ _) -> do
          else urlList xs
 
 
-
-
 extractTitle :: String -- | URL
              -> IO T.Text -- | Title
 extractTitle url = do
@@ -84,7 +82,9 @@ extractTitle url = do
                                 else False)
           parsed =  parseTags webpage
           content = getTagContent (S.fromString "title") matchAttr parsed
-          (maybeResult:_) = fmap maybeTagText content
+          maybeResult  = case fmap maybeTagText content of
+                           (x:_) -> x
+                           []    -> Nothing
       case maybeResult of
         Just result ->  return $ TE.decodeUtf8 $ LB.toStrict result -- To do: handle web pages that don't use UTF8
         Nothing     -> return "Could not fetch a title for that URL. \

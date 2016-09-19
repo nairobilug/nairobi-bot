@@ -1,7 +1,7 @@
 {-|
 Module      : Bot.Wolfram
 Description : Query wolfram alpha <http://www.wolframalpha.com/>
-Copyright   : (c) 2015, Njagi Mwaniki 
+Copyright   : (c) 2015, Njagi Mwaniki
 License     : BSD3
 Maintainer  : njagi@urbanslug.com
 Stability   : experimental
@@ -42,7 +42,7 @@ waBot = proc (InMessage _ msg _ _) -> do
 
   where
     getQuery :: Message -> Maybe Message
-    getQuery query = 
+    getQuery query =
       case String.words query of
         ("@wa": q) -> Just $ String.unwords q
         _          -> Nothing
@@ -56,7 +56,10 @@ waBot = proc (InMessage _ msg _ _) -> do
       lst <- getTagList $ pack query
 
       let biss = getTagContent (String.fromString "pod") matchAttr lst
-          (maybeResult:_) = Prelude.map maybeTagText $ getTagContent (String.fromString "plaintext") matchPlainText biss
+          maybeResult = case Prelude.map maybeTagText $ getTagContent (String.fromString "plaintext") matchPlainText biss of
+                          (x:_) -> x
+                          [] -> Nothing
+
 
       case fmap (decodeUtf8 . L.toStrict) maybeResult of
         Just result -> return result
@@ -65,12 +68,12 @@ waBot = proc (InMessage _ msg _ _) -> do
                                \ please report a bug at\
                                \ https://github.com/urbanslug/nairobi-bot/issues"
 
-{- 
+{-
    Parsing and the heavy lifting.
 -}
 
 appID :: IO Text
-appID = do 
+appID = do
   conf' <- getConfig
   let conf = case conf' of
                Just c -> c
@@ -95,6 +98,3 @@ matchAttr (x:xs)
 matchPlainText :: [Attribute L.ByteString] -> Bool
 matchPlainText [] = True
 matchPlainText _ = False
-
-
-
