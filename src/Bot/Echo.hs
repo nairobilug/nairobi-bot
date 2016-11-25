@@ -1,12 +1,3 @@
-{-|
-Module      : Bot.Echo
-Description : Simply echo what it recieves.
-Copyright   : (c) 2015, Njagi Mwaniki 
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
 {-# LANGUAGE Arrows #-}
 module Bot.Echo where
 
@@ -30,5 +21,4 @@ echoBot = proc (InMessage _ msg _ _) -> do
     echoBlips = emitJusts (getRequest . words)
       where
         getRequest ("@echo": msg) = Just $ unwords msg
-        getRequest _ = Nothing 
-
+        getRequest _ = Nothing

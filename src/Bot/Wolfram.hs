@@ -1,12 +1,3 @@
-{-|
-Module      : Bot.Wolfram
-Description : Query wolfram alpha <http://www.wolframalpha.com/>
-Copyright   : (c) 2015, Njagi Mwaniki
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.Wolfram (waBot) where
 
@@ -15,8 +6,6 @@ import Control.Auto
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Auto.Effects (arrMB)
-
-
 
 -- Heavy lifting parsing stuff.
 import qualified Data.String as String
@@ -29,6 +18,7 @@ import Data.Text.Encoding (decodeUtf8)
 import Bot.Types
 import Bot.Network (sendWaQuery)
 import Data.Bot.Config (getConfig)
+
 
 
 waBot :: MonadIO a => RoomBot a

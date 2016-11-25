@@ -1,13 +1,3 @@
-{-|
-Module      : Bot.URL
-Description : Fetch the page title and description of a webpage given the url.
-Copyright   : (c) 2015, Njagi Mwaniki
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.URL
 ( urlBot

@@ -1,16 +1,5 @@
-{-|
-Module      : Bot.Types
-Description : A home for all the types used in nairobi-bot
-Copyright   : (c) 2015, Njagi Mwaniki 
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
 
 {-|
 These types are specific to chatbot and are not irc related.
@@ -85,7 +74,7 @@ instance FromJSON NowPlaying where
       Object a -> do
         trackObj <- a .: "track"
         case trackObj of
-          Array b -> 
+          Array b ->
             case V.toList b of
               [] -> fail "Array is empty"
               (x:_) -> case x of
@@ -120,14 +109,14 @@ instance FromJSON NowPlaying where
 -- newtype Definition =
 --  Definition {getRelatedTopics :: Text} deriving Show
 
-data Definition = 
+data Definition =
   Definition { abstractText :: Text
              , getRelatedTopics :: Text
   } deriving Show
 
 
 -- The first arg to forM is a list of Objects
--- The second is one that takes a list of Objects and extracts Text values from it. 
+-- The second is one that takes a list of Objects and extracts Text values from it.
 -- topicsArray :: Vector Value. You can get a [Value] from that using Data.Vector.toList
 -- Objects .: Object -> Text
 instance FromJSON Definition where
