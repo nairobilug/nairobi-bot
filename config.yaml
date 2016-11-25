@@ -1,8 +1,8 @@
 # Bot specific
 network: irc.freenode.net
-name: nairobi-bot
+name: zippy-bot
 channels:
-  - nairobilug
+- zippy-chan
 
 # API keys
 wolframAlpha: <API-KEY>

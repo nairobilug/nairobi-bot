@@ -1,7 +1,7 @@
 {-|
 Module      : Bot.Network
 Description : Handle all the network duties.
-Copyright   : (c) 2015, Njagi Mwaniki 
+Copyright   : (c) 2015, Njagi Mwaniki
 License     : BSD3
 Maintainer  : njagi@urbanslug.com
 Stability   : experimental
@@ -19,12 +19,9 @@ module Bot.Network
 import Network.Wreq
 import Control.Lens
 import qualified Data.ByteString.Lazy as L
-
-import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.String as S
 import qualified Data.Text as T
-
 
 -- import Control.Monad (when)
 -- import Control.Exception.Base (catch)
@@ -66,11 +63,9 @@ sendWaQuery query id' = do
 -}
 
 getWebPage :: String -- | Url
-            -> IO (Either String L.ByteString) -- | Either "HttpError" Webpage 
+            -> IO (Either String L.ByteString) -- | Either "HttpError" Webpage
 getWebPage url = do
-  eResponse <- try
-                 (get url) :: IO (Either HttpException (Response L.ByteString) )
+  eResponse <- try (get url) :: IO (Either HttpException (Response L.ByteString))
   case eResponse of
     Right response -> return $ Right $ response ^. responseBody
     Left ex -> return $ Left $ "HTTP Exception: " ++ show ex
-
