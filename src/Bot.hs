@@ -26,7 +26,7 @@ import Data.Bot.Config
 import Bot.URL
 import Bot.Help
 import Bot.Ping
-
+import Bot.GIF
 
 
 withIrcConf :: IrcConfig -> ChatBot IO -> IO ()
@@ -96,6 +96,7 @@ chatBot = mconcat [ serializing' "rep.dat"  $ perRoom repBot
                   , perRoom urlBot
                   , perRoom helpBot
                   , perRoom pingBot
+                  , perRoom gifBot
                   ]
 
 -- replace conf with freenode
