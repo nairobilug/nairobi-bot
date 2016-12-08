@@ -13,7 +13,7 @@ import Control.Auto
 import qualified Data.Map as M
 import Data.Time
 import Data.Serialize
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 
 import Data.Aeson
 import Data.Text

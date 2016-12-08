@@ -45,4 +45,4 @@ defineBot = proc (InMessage _ msg _ _) -> do
         eitherJSON <- getWebPage url -- fmap (showMaybeDef . decode') $ getJSON url
         case eitherJSON of
           Right json -> return $ (showMaybeDef . decode') json
-          Left ex -> return $ "Now playing failed due to " ++ ex
+          Left ex -> return $ "Define failed due to " ++ ex

@@ -25,6 +25,7 @@ import Bot.Define
 import Data.Bot.Config
 import Bot.URL
 import Bot.Help
+import Bot.Ping
 
 
 
@@ -86,14 +87,15 @@ channels' :: [String] -- | Channel list from yaml file without hashes.
 channels' chans = map ('#':) chans
 
 chatBot :: MonadIO m => ChatBot m
-chatBot = mconcat [ serializing' "rep.dat" $ perRoom repBot
+chatBot = mconcat [ serializing' "rep.dat"  $ perRoom repBot
                   , serializing' "seen.dat" $ perRoom seenBot
+                  , serializing' "np.dat"   $ perRoom npBot
                   , perRoom echoBot
                   , perRoom defineBot
                   , perRoom waBot
                   , perRoom urlBot
                   , perRoom helpBot
-                  , serializing' "np.dat" $ perRoom npBot
+                  , perRoom pingBot
                   ]
 
 -- replace conf with freenode

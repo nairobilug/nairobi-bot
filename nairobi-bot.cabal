@@ -27,6 +27,7 @@ library
                      , Bot.Define
                      , Bot.URL
                      , Bot.Help
+                     , Bot.Ping
                      , Data.Bot.Config
 
 
