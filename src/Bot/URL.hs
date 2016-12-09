@@ -1,13 +1,3 @@
-{-|
-Module      : Bot.URL
-Description : Fetch the page title and description of a webpage given the url.
-Copyright   : (c) 2015, Njagi Mwaniki
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.URL
 ( urlBot
@@ -77,18 +67,15 @@ extractTitle url = do
   eitherWebPage <- getWebPage url  -- webpage :: L.ByteString
   case eitherWebPage of
     Right webpage -> do
-      let matchAttr = (\x -> if x == []
-                                then True
-                                else False)
-          parsed =  parseTags webpage
-          content = getTagContent (S.fromString "title") matchAttr parsed
+      let errorText    = "Webpage has no title."
+          parsed       =  parseTags webpage
+          content      = getTagContent (S.fromString "title") null parsed
           maybeResult  = case fmap maybeTagText content of
                            (x:_) -> x
                            []    -> Nothing
-      case maybeResult of
-        Just result ->  return $ TE.decodeUtf8 $ LB.toStrict result -- To do: handle web pages that don't use UTF8
-        Nothing     -> return "Could not fetch a title for that URL. \
-                              \If it's not a problem with your URL maybe the \
-                              \page uses a different encoding from UTF8. If not, \
-                              \report a bug at: https://github.com/nairobilug/nairobi-bot/issues"
+      if  Prelude.foldr (||) False $ fmap (tagOpenNameLit "title") parsed
+      then case maybeResult of
+             Just result ->  return $ TE.decodeUtf8 $ LB.toStrict result -- To do: handle web pages that don't use UTF8
+             Nothing     -> return "Could not fetch a title for that URL."
+      else return errorText
     Left ex -> return $ T.pack $ "Fetching page title failed due to " ++ ex

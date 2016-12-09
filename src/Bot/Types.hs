@@ -1,16 +1,5 @@
-{-|
-Module      : Bot.Types
-Description : A home for all the types used in nairobi-bot
-Copyright   : (c) 2015, Njagi Mwaniki 
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
 
 {-|
 These types are specific to chatbot and are not irc related.
@@ -24,7 +13,7 @@ import Control.Auto
 import qualified Data.Map as M
 import Data.Time
 import Data.Serialize
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 
 import Data.Aeson
 import Data.Text
@@ -38,10 +27,9 @@ type Nick    = String
 type Channel = String
 type Message = String
 
-type URL = String
+type URL      = String
 type Username = String
-
-type Query = String
+type Query    = String
 
 data InMessage = InMessage { _inMessageNick   :: Nick
                            , _inMessageBody   :: Message
@@ -49,14 +37,17 @@ data InMessage = InMessage { _inMessageNick   :: Nick
                            , _inMessageTime   :: UTCTime
                            } deriving Show
 
-newtype OutMessages = OutMessages (M.Map Channel [Message])
-                    deriving Show
+newtype OutMessages = OutMessages (M.Map Channel [Message]) deriving Show
 
-data NowPlaying =
-  NowPlaying { song :: Text
-             , artist :: Text
-             , album :: Text
-             } deriving Show
+newtype GIF = GIF URL deriving (Show)
+
+data NowPlaying = NowPlaying { song :: Text
+                             , artist :: Text
+                             , album :: Text
+                             } deriving Show
+data Definition = Definition { abstractText :: Text
+                             , getRelatedTopics :: Text
+                             } deriving Show
 
 instance Monoid OutMessages where
     mempty  = OutMessages M.empty
@@ -85,7 +76,7 @@ instance FromJSON NowPlaying where
       Object a -> do
         trackObj <- a .: "track"
         case trackObj of
-          Array b -> 
+          Array b ->
             case V.toList b of
               [] -> fail "Array is empty"
               (x:_) -> case x of
@@ -101,33 +92,12 @@ instance FromJSON NowPlaying where
                                   _ -> fail "idc"
                               _ -> fail "Idk"
           _ -> fail "idk"
-        {- case trackObj of
-             Object b -> do
-               song' <- b .: "name"
-               artistObj <- b .: "artist"
-               artist' <- case artistObj of
-                            Object c -> c .: "#text"
-                            _ -> fail "FU"
-               albumObj <- b .: "album"
-               case albumObj of
-                 Object d -> fmap (NowPlaying song' artist') $ d .: "#text"
-                 _ -> fail "idc"
-             _ -> fail "Idk"-}
       _ -> fail "Bad JSON"
   parseJSON _ = fail "Really bad JSON"
 
 
--- newtype Definition =
---  Definition {getRelatedTopics :: Text} deriving Show
-
-data Definition = 
-  Definition { abstractText :: Text
-             , getRelatedTopics :: Text
-  } deriving Show
-
-
 -- The first arg to forM is a list of Objects
--- The second is one that takes a list of Objects and extracts Text values from it. 
+-- The second is one that takes a list of Objects and extracts Text values from it.
 -- topicsArray :: Vector Value. You can get a [Value] from that using Data.Vector.toList
 -- Objects .: Object -> Text
 instance FromJSON Definition where
@@ -144,6 +114,28 @@ instance FromJSON Definition where
                              ) x
       _ -> fail "No array in related topics."
   parseJSON _ = fail "No JSON object in JSON file."
+
+
+instance FromJSON GIF where
+  parseJSON (Object d) = do
+    dataObj <- d .: "data"
+    case dataObj of
+      Array a ->
+        case V.toList a of
+          []    -> fail "Data Array is empty"
+          (x:_) -> case x of
+            Object b -> do
+              imagesObj <- b .: "images"
+              case imagesObj of
+                Object c -> do
+                  originalObj <- c .: "original"
+                  case originalObj of
+                    Object e -> fmap GIF $ e .: "url"
+                    _ -> fail " origial value is empty"
+                _ -> fail "original is empty"
+            _ -> fail "images is empty"
+      _ -> fail "data is empty"
+  parseJSON _ = fail "No JSON object in http response"
 
 -- config
 data Config = Config { network      :: String
