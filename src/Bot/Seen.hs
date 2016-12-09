@@ -29,6 +29,7 @@ seenBot = proc (InMessage nick msg _ time) -> do
   where
     trackSeens :: Monad m => Auto m (Nick, UTCTime) (Map Nick UTCTime)
     trackSeens = accum (\mp (nick, time) -> M.insert nick time mp) M.empty
+
     queryBlips :: Auto m Message (Blip Nick)
     queryBlips = emitJusts (getRequest . words)
       where

@@ -29,6 +29,7 @@ library
                      , Bot.Help
                      , Bot.Ping
                      , Bot.GIF
+                     , Bot.Factoid
                      , Data.Bot.Config
 
 
