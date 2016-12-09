@@ -1,12 +1,3 @@
-{-|
-Module      : Bot.Reputation
-Description : Give people points or subtruct them.
-Copyright   : (c) 2015, Njagi Mwaniki
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
 {-# LANGUAGE Arrows #-}
 module Bot.Reputation where
 
@@ -16,6 +7,7 @@ import Data.Map as M
 import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 
 import Bot.Types
+
 
 
 repBot :: Monad m => RoomBot m

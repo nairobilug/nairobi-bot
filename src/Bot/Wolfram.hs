@@ -1,12 +1,3 @@
-{-|
-Module      : Bot.Wolfram
-Description : Query wolfram alpha <http://www.wolframalpha.com/>
-Copyright   : (c) 2015, Njagi Mwaniki
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.Wolfram (waBot) where
 
@@ -16,10 +7,8 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Auto.Effects (arrMB)
 
-
-
 -- Heavy lifting parsing stuff.
-import qualified Data.String as String
+import qualified Data.String as S
 import Data.Text hiding (length, head, map)
 import qualified Data.ByteString.Lazy as L
 import Text.HTML.TagSoup
@@ -29,6 +18,7 @@ import Data.Text.Encoding (decodeUtf8)
 import Bot.Types
 import Bot.Network (sendWaQuery)
 import Data.Bot.Config (getConfig)
+
 
 
 waBot :: MonadIO a => RoomBot a
@@ -43,8 +33,8 @@ waBot = proc (InMessage _ msg _ _) -> do
   where
     getQuery :: Message -> Maybe Message
     getQuery query =
-      case String.words query of
-        ("@wa": q) -> Just $ String.unwords q
+      case S.words query of
+        ("@wa": q) -> Just $ S.unwords q
         _          -> Nothing
 
     getWolfram :: Message -> IO Message
@@ -53,20 +43,20 @@ waBot = proc (InMessage _ msg _ _) -> do
     wolfram :: String  -- | Query
             -> IO Text -- | IO result
     wolfram query = do
-      lst <- getTagList $ pack query
+      tagList <- getTagList $ pack query
 
-      let biss = getTagContent (String.fromString "pod") matchAttr lst
-          maybeResult = case Prelude.map maybeTagText $ getTagContent (String.fromString "plaintext") matchPlainText biss of
+      let errorText   = "No result from wolfram alpha."
+          podContent  = getTagContent (S.fromString "pod") matchAttr tagList
+          plainText   = getTagContent (S.fromString "plaintext") matchPlainText podContent
+          maybeResult = case Prelude.map maybeTagText plainText  of
                           (x:_) -> x
                           [] -> Nothing
 
-
-      case fmap (decodeUtf8 . L.toStrict) maybeResult of
-        Just result -> return result
-        Nothing     -> return "No result from wolfram alpha.\
-                               \ If it's not a bad query or API key\
-                               \ please report a bug at\
-                               \ https://github.com/urbanslug/nairobi-bot/issues"
+      if Prelude.foldr (||) False $ fmap (tagOpenAttrNameLit "pod" "title" (== "Result")) tagList
+        then case fmap (decodeUtf8 . L.toStrict) maybeResult of
+               Just result -> return result
+               Nothing     -> return errorText
+        else return errorText
 
 {-
    Parsing and the heavy lifting.

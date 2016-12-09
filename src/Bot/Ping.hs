@@ -1,16 +1,16 @@
 {-# LANGUAGE Arrows #-}
-module Bot.Echo where
+module Bot.Ping where
 
 import Control.Auto
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Monad.IO.Class (MonadIO)
 
 import Bot.Types
 
 
 
-echoBot :: MonadIO m => RoomBot m
-echoBot = proc (InMessage _ msg _ _) -> do
+pingBot :: MonadIO m => RoomBot m
+pingBot = proc (InMessage _ msg _ _) -> do
 
   echoB <- echoBlips -< msg
 
@@ -20,5 +20,5 @@ echoBot = proc (InMessage _ msg _ _) -> do
     echoBlips :: Auto m Message (Blip Message)
     echoBlips = emitJusts (getRequest . words)
       where
-        getRequest ("@echo": msg) = Just $ unwords msg
-        getRequest _ = Nothing
+        getRequest ("@ping": _) = Just "PONG!"
+        getRequest _            = Nothing

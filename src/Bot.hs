@@ -1,30 +1,19 @@
-{-|
-Module      : Bot
-Description : The Bot itself.
-Copyright   : (c) 2015, Njagi Mwaniki 
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-
-{-# LANGUAGE Arrows #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE Arrows, OverloadedStrings #-}
 module Bot where
 
 import Control.Auto
-import Control.Concurrent       (Chan, newChan, writeChan, forkIO, threadDelay)
-import Control.Auto.Run         (runOnChanM)
-import Control.Auto.Serialize   (serializing')
-import Control.Monad            (void, forever)
+import Control.Concurrent     (Chan, newChan, writeChan, forkIO, threadDelay)
+import Control.Auto.Run       (runOnChanM)
+import Control.Auto.Serialize (serializing')
+import Control.Monad          (void, forever)
 import Control.Monad.IO.Class
-import Data.Foldable            (forM_)
-import Data.Text hiding         (words, unwords, map)
+import Data.Foldable          (forM_)
+import Data.Text hiding       (words, unwords, map)
 import Data.Text.Encoding
 import Data.Time
 import Network.SimpleIRC
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
-import qualified Data.Map       as M
+import Prelude hiding         ((.), id) -- we use (.) and id from `Control.Category`
+import qualified Data.Map     as M
 
 import Bot.Types
 import Bot.Reputation
@@ -36,7 +25,8 @@ import Bot.Define
 import Data.Bot.Config
 import Bot.URL
 import Bot.Help
-
+import Bot.Ping
+import Bot.GIF
 
 
 withIrcConf :: IrcConfig -> ChatBot IO -> IO ()
@@ -97,14 +87,16 @@ channels' :: [String] -- | Channel list from yaml file without hashes.
 channels' chans = map ('#':) chans
 
 chatBot :: MonadIO m => ChatBot m
-chatBot = mconcat [ serializing' "rep.dat" $ perRoom repBot
+chatBot = mconcat [ serializing' "rep.dat"  $ perRoom repBot
                   , serializing' "seen.dat" $ perRoom seenBot
+                  , serializing' "np.dat"   $ perRoom npBot
                   , perRoom echoBot
                   , perRoom defineBot
                   , perRoom waBot
                   , perRoom urlBot
                   , perRoom helpBot
-                  , serializing' "np.dat" $ perRoom npBot
+                  , perRoom pingBot
+                  , perRoom gifBot
                   ]
 
 -- replace conf with freenode

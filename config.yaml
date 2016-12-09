@@ -2,7 +2,7 @@
 network: irc.freenode.net
 name: nairobi-bot
 channels:
-  - nairobilug
+- nairobilug
 
 # API keys
 wolframAlpha: <API-KEY>

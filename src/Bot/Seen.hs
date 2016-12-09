@@ -1,20 +1,10 @@
-{-|
-Module      : Bot.Seen
-Description : Find out when the user last spoke in the channel.
-Copyright   : (c) 2015, Njagi Mwaniki 
-License     : BSD3
-Maintainer  : njagi@urbanslug.com
-Stability   : experimental
-Portability : POSIX
--}
-{-# LANGUAGE Arrows #-}
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE Arrows, InstanceSigs #-}
 module Bot.Seen where
 
 import Control.Auto
 import Data.Map as M
 import Data.Time.Clock
-import Prelude hiding         ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Monad.IO.Class
 
 import Bot.Types
@@ -23,7 +13,7 @@ import Bot.Types
 
 seenBot :: MonadIO m => RoomBot m
 seenBot = proc (InMessage nick msg _ time) -> do
-  
+
     now <- effect (liftIO getCurrentTime) -< ()
 
     seens  <- trackSeens -< (nick, time)
