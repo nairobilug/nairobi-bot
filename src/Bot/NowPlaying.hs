@@ -1,3 +1,13 @@
+{-|
+Module      : Bot.NowPlaying
+Description : Fetch the currently playing song from <http://www.last.fm>
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 {-# LANGUAGE OverloadedStrings, Arrows #-}
 module Bot.NowPlaying (npBot) where
 
@@ -6,7 +16,7 @@ import Control.Auto
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Data.Aeson (decode)
 import Control.Auto.Effects (arrMB)
-import Control.Auto.Blip
+import Control.Auto.Blip 
 import qualified Data.Map as M
 import Data.Text (unpack)
 
@@ -37,38 +47,38 @@ npBot = proc (InMessage nick msg _ _) -> do
   id -< (: []) <$> (np `mergeL` registeredMessage)
   where
     search :: (Maybe Nick, Maybe String, (M.Map Nick Username)) -> Maybe (Username, Nick)
-    search ((Just nick), Nothing, usernames') =
+    search ((Just nick), Nothing, usernames') = 
       case M.lookup nick usernames' of
         Just uname -> Just (uname, nick)
         _          -> Just (nick, nick)
-    search ((Just nick), (Just uname), _) =
+    search ((Just nick), (Just uname), _) = 
       Just (uname, nick)
     search _ = Nothing
 
     foldMap' :: Auto m (Blip (Nick, Username)) (M.Map Nick Username)
-    foldMap' =
+    foldMap' = 
       scanB (\acum (nick, username) -> M.insert nick username acum) M.empty
 
     getRegisterRequest :: (Nick, Message) -> Maybe (Nick, Username)
-    getRegisterRequest (nick, msg') =
+    getRegisterRequest (nick, msg') = 
       case words msg' of
         ["@np", "set", uName'] -> Just (nick, uName')
         _                       -> Nothing
 
-    getRequest :: (Nick, Message, M.Map Nick Username)
+    getRequest :: (Nick, Message, M.Map Nick Username) 
                   -> (Maybe Nick, Maybe String, M.Map Nick Username)
-    getRequest (nick , msg', map') =
+    getRequest (nick , msg', map') = 
       case words msg' of
         ["@np"]  -> (Just nick, Nothing, map')
         ["@np", uname] -> (Just nick ,Just uname, map')
         _ -> (Nothing, Nothing, map')
 
     showMaybeNP :: Maybe NowPlaying -> String
-    showMaybeNP (Just (NowPlaying song' artist' album')) =
-      " is listening to \"" ++ (unpack song') ++ "\" by "
-      ++ (unpack artist') ++ " from the album \""
+    showMaybeNP (Just (NowPlaying song' artist' album')) = 
+      " is listening to \"" ++ (unpack song') ++ "\" by " 
+      ++ (unpack artist') ++ " from the album \"" 
       ++ (unpack album') ++ "\"."
-    showMaybeNP Nothing =
+    showMaybeNP Nothing = 
       " Not found. If you're sure the user is on last.fm \
        \ and have a proper API key. \
        \Please report a bug at: \
@@ -81,14 +91,14 @@ npBot = proc (InMessage nick msg _ _) -> do
       appId <- case appId' of
               "" -> fail "You haven't set your last.fm API key. Fix your config.yaml."
               idd -> return idd
-      eitherJSON  <- getWebPage $ "http://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user="
+      eitherJSON  <- getWebPage $ "http://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=" 
                           ++ uname ++ "&api_key="++ appId ++"&limit=1&format=json"
       case eitherJSON of
         Right json -> return $ ( ((++) nick) . showMaybeNP . decode) json
         Left ex -> return $ "Now playing failed due to " ++ ex
 
 appID :: IO String
-appID = do
+appID = do 
   conf' <- getConfig
   let conf = case conf' of
                Just c -> c

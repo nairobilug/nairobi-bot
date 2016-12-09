@@ -1,5 +1,14 @@
+{-|
+Module      : Bot.Help
+Description : Give a help message to a user.
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
 {-# LANGUAGE Arrows #-}
-module Bot.Help
+module Bot.Help 
 ( helpBot
 ) where
 
@@ -21,7 +30,7 @@ helpBot = proc (InMessage _ msg _ _) -> do
   where
     getHelp :: Auto m Message (Blip Message)
     getHelp = emitJusts (getRequest . words)
-
+    
     getRequest :: [String] -> Maybe Message
     getRequest ("@help": _) = Just $ "Read the docs here: https://github.com/nairobilug/nairobi-bot/wiki#usage"
-    getRequest _ = Nothing
+    getRequest _ = Nothing 

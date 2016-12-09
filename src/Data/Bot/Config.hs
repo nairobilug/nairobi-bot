@@ -1,3 +1,13 @@
+{-|
+Module      : Data.Bot.Config
+Description : For reading your configs
+Copyright   : (c) 2015, Njagi Mwaniki 
+License     : BSD3
+Maintainer  : njagi@urbanslug.com
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Data.Bot.Config (getConfig) where
 
 import Data.Yaml
@@ -48,5 +58,5 @@ getConfig = do
           lastFmId = case lastFmId' of
                        Just lId -> lId
                        Nothing -> ""
-
+                       
       return $ Just $ Config net botName [chanLst] waId lastFmId

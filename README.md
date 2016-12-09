@@ -18,8 +18,6 @@
   - `@np` If your IRC nick is your last.fm username or if you have set your last.fm username.
 * define `@define <word/phrase>`
 * echo `@echo <sentence you want to echo>`
-* ping `@ping`
-* gif `@gif <search term>`
 * wolfram alpha `@wa <search query>`
 * URLs *Automatically fetches page titles from URLs.*
 * Help `@help` — there are too many commands to paste the help in a channel so we give the user a URL to the wiki: https://github.com/nairobilug/nairobi-bot/wiki#usage
@@ -45,7 +43,7 @@ I haven't yet written tests for it but they are coming.
 
 
 #### Deploying
-Build and run the nairobi-bot executable like any other binary.
+Build and run the nairobi-bot executable like any other binary.  
 Preferably using stack:
 * `stack build`   *to compile but not add it to path*
 * `stack install` *to add nairbibot-exe to path*
@@ -60,7 +58,7 @@ In production use the following [answer from stackoverflow](http://stackoverflow
 4. & at the end means: run this command as a background task.
 
 #### License
-BSD3.
+BSD3.  
 See [LICENSE](https://github.com/nairobilug/nairobi-bot/blob/master/LICENSE) file for complete license.
 
 #### Other/RTFM

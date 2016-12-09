@@ -1,7 +1,6 @@
 .stack-work/
 .cabal-sandbox/
 cabal.sandbox.config
-config.yaml
 *.dat
 *~
 *#
