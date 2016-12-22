@@ -27,6 +27,7 @@ import Bot.URL
 import Bot.Help
 import Bot.Ping
 import Bot.GIF
+import Bot.Factoid
 
 
 withIrcConf :: IrcConfig -> ChatBot IO -> IO ()
@@ -87,9 +88,10 @@ channels' :: [String] -- | Channel list from yaml file without hashes.
 channels' chans = map ('#':) chans
 
 chatBot :: MonadIO m => ChatBot m
-chatBot = mconcat [ serializing' "rep.dat"  $ perRoom repBot
-                  , serializing' "seen.dat" $ perRoom seenBot
-                  , serializing' "np.dat"   $ perRoom npBot
+chatBot = mconcat [ serializing' "rep.dat"     $ perRoom repBot
+                  , serializing' "seen.dat"    $ perRoom seenBot
+                  , serializing' "np.dat"      $ perRoom npBot
+                  , serializing' "factoid.dat" $ perRoom factoidBot
                   , perRoom echoBot
                   , perRoom defineBot
                   , perRoom waBot

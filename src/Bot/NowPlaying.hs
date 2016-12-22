@@ -53,7 +53,7 @@ npBot = proc (InMessage nick msg _ _) -> do
     getRegisterRequest (nick, msg') =
       case words msg' of
         ["@np", "set", uName'] -> Just (nick, uName')
-        _                       -> Nothing
+        _                      -> Nothing
 
     getRequest :: (Nick, Message, M.Map Nick Username)
                   -> (Maybe Nick, Maybe String, M.Map Nick Username)
