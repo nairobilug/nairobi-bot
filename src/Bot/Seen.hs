@@ -6,7 +6,6 @@ import Data.Map as M
 import Data.Time.Clock
 import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Monad.IO.Class
-
 import Bot.Types
 
 

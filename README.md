@@ -16,6 +16,7 @@
   - `@np set <username>` to associate a last.fm username with your nick.
   - `@np <last.fm username>` If you don't want to set your last fm username.
   - `@np` If your IRC nick is your last.fm username or if you have set your last.fm username.
+* factoid `@factoid <name> <message>`
 * define `@define <word/phrase>`
 * echo `@echo <sentence you want to echo>`
 * ping `@ping`
