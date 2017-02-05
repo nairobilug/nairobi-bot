@@ -4,11 +4,9 @@ module Bot.Help
 ) where
 
 import Control.Auto
-import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
+import Prelude hiding ((.), id)
 import Control.Monad.IO.Class (MonadIO)
-
 import Bot.Types
-
 
 
 helpBot :: MonadIO m => RoomBot m
@@ -23,5 +21,6 @@ helpBot = proc (InMessage _ msg _ _) -> do
     getHelp = emitJusts (getRequest . words)
 
     getRequest :: [String] -> Maybe Message
-    getRequest ("@help": _) = Just $ "Read the docs here: https://github.com/nairobilug/nairobi-bot/wiki#usage"
+    getRequest ("@help": _) =
+      Just $ "Read the docs: https://github.com/nairobilug/nairobi-bot"
     getRequest _ = Nothing
