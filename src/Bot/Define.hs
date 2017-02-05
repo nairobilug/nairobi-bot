@@ -8,10 +8,10 @@ import Control.Auto
 import Data.List (intersperse)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Auto.Effects (arrMB)
-import qualified Data.ByteString.Lazy as L
+import qualified Data.ByteString.Lazy as LB
 import Data.Text (unpack)
 
-import Bot.Network
+import Bot.Data.Network
 import Bot.Types
 
 
@@ -39,10 +39,10 @@ defineBot = proc (InMessage _ msg _ _) -> do
 
     getDefine :: Query -> IO Message
     getDefine query =
-      let decode' = decode :: L.ByteString -> Maybe Definition
-          url = "http://api.duckduckgo.com/?q="++query++"&format=json"
+      let url = "http://api.duckduckgo.com/?q="++query++"&format=json"
       in do
-        eitherJSON <- getWebPage url -- fmap (showMaybeDef . decode') $ getJSON url
-        case eitherJSON of
-          Right json -> return $ (showMaybeDef . decode') json
-          Left ex -> return $ "Define failed due to " ++ ex
+        eitherResponse <- safeGet url
+        case eitherResponse of
+          Left ex -> return $ "Define failed due to " ++ unpack ex
+          Right resp -> return $ showMaybeDef $ decode $ body $
+                                parseResponse resp

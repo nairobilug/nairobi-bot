@@ -3,7 +3,7 @@ version:             0.0.0.1
 synopsis:            IRC bot written in haskell.
 description:         Please see README.md
 homepage:            http://github.com/githubuser/nairobi-bot#readme
-license:             BSD3
+license:             GPL-3
 license-file:        LICENSE
 author:              Njagi Mwaniki
 maintainer:          njagi@urbanslug.com
@@ -16,41 +16,43 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Bot
-
-  other-modules:       Bot.Types
-                     , Bot.Reputation
-                     , Bot.Seen
-                     , Bot.Network
+                     , Bot.Types
+                     , Bot.URL
                      , Bot.Echo
+                     , Bot.Data.Config
+                     , Bot.Data.Network
+
+  other-modules:       Bot.Reputation
+                     , Bot.Seen
                      , Bot.Wolfram
                      , Bot.NowPlaying
                      , Bot.Define
-                     , Bot.URL
                      , Bot.Help
                      , Bot.Ping
                      , Bot.GIF
                      , Bot.Factoid
-                     , Data.Bot.Config
 
-
-  build-depends:       base >= 4.7 && < 5
+  build-depends:       aeson >= 0.11 && < 0.13
                      , auto >= 0.4 && < 0.6
-                     , simpleirc >= 0.3 && < 0.4
-                     , aeson >= 0.11 && < 0.13
+                     , base >= 4.7 && < 5
                      , bytestring >= 0.10 && < 0.12
                      , cereal >= 0.4 && < 0.6
                      , containers >= 0.5 && < 0.6
+                     , directory >= 1.2 && < 3.0
+                     , http-client >= 0.4 && < 0.6
                      , lens >= 4.13 && < 4.16
+                     , network >= 2.6 && < 2.7
+                     , random >= 1.0 && < 2.0
+                     , simpleirc >= 0.3.1 && < 0.5
                      , tagsoup >= 0.13 && < 0.15
+                     , text >= 1.2 && < 1.3
                      , time >= 1.5 && < 1.7
                      , transformers >= 0.4 && < 0.6
-                     , text >= 1.2 && < 1.3
-                     , network >= 2.6 && < 2.7
                      , unordered-containers >= 0.2 && < 0.4
                      , vector >= 0.10 && < 0.12
-                     , wreq
+                     , wreq >= 0.4 && < 0.6
+                     , http-types >= 0.9 && < 1.1
                      , yaml >= 0.8 && < 0.10
-                     , http-client >= 0.4 && < 0.6
 
   default-language:    Haskell2010
 
@@ -64,11 +66,31 @@ executable nairobi-bot
 
 test-suite nairobi-bot-test
   type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
+  hs-source-dirs:      tests
   main-is:             Spec.hs
-  build-depends:       base
+  other-modules:       BotSpec
+                     , Bot.TypesSpec
+                     , Bot.URLSpec
+                     , Bot.EchoSpec
+                     , Bot.Data.ConfigSpec
+                     , Bot.Data.NetworkSpec
+  build-depends:       QuickCheck >= 2.8 && < 3.0
+                     , hspec >= 2.2 && < 3.0
+                     , aeson
+                     , auto
+                     , base
+                     , bytestring
+                     , containers
                      , nairobi-bot
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+                     , simpleirc
+                     , wreq
+                     , lens
+                     , http-client
+                     , http-types
+                     , time
+                     , text
+                     , yaml
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall -fwarn-tabs
   default-language:    Haskell2010
 
 source-repository head
