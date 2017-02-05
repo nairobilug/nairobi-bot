@@ -1,72 +1,64 @@
 {-# OPTIONS_GHC -fno-warn-orphans  #-}
 {-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
-
-{-|
-These types are specific to chatbot and are not irc related.
--}
-
 module Bot.Types where
 
 import Control.Auto.Blip
 import Control.Auto
-
 import qualified Data.Map as M
 import Data.Time
-import Data.Serialize
 import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
-
 import Data.Aeson
-import Data.Text
-
+import Data.Aeson.Types (typeMismatch)
+import Data.Text hiding (length, null)
 import qualified Data.Vector as V
+import Data.Serialize
+import System.Random
+import System.IO.Unsafe
 
--- Config
-import GHC.Generics
-
-type Nick    = String
-type Channel = String
-type Message = String
-
+type Nick     = String
+type Channel  = String
+type Message  = String
 type URL      = String
 type Username = String
 type Query    = String
 
-data InMessage = InMessage { _inMessageNick   :: Nick
-                           , _inMessageBody   :: Message
-                           , _inMessageSource :: Channel
-                           , _inMessageTime   :: UTCTime
-                           } deriving Show
+instance Serialize UTCTime where
+  get = read <$> get -- to do: refactor this
+  put = put . show
 
-newtype OutMessages = OutMessages (M.Map Channel [Message]) deriving Show
-
-newtype GIF = GIF URL deriving (Show)
+instance Serialize Day where
+  get = ModifiedJulianDay <$> get
+  put = put . toModifiedJulianDay
 
 data NowPlaying = NowPlaying { song :: Text
                              , artist :: Text
                              , album :: Text
                              } deriving Show
+
 data Definition = Definition { abstractText :: Text
                              , getRelatedTopics :: Text
                              } deriving Show
+
+data InMessage = InMessage { nick    :: Nick
+                           , message :: Message
+                           , channel :: Channel
+                           , time    :: UTCTime
+                           } deriving Show
+
+data BotResponse a = BotResponse { body :: a
+                                 , contentType :: a
+                                 , contentLength :: a} deriving (Show, Eq)
+
+newtype OutMessages = OutMessages (M.Map Channel [Message]) deriving (Show, Eq)
 
 instance Monoid OutMessages where
     mempty  = OutMessages M.empty
     mappend (OutMessages m1) (OutMessages m2)
             = OutMessages (M.unionWith (++) m1 m2)
 
-
 type ChatBot m = Auto m InMessage OutMessages
 
 type RoomBot m = Auto m InMessage (Blip [Message])
-
-instance Serialize UTCTime where
-    get = read <$> get      -- haha don't do this in real life.
-    put = put . show
-
-instance Serialize Day where
-    get = ModifiedJulianDay <$> get
-    put = put . toModifiedJulianDay
-
 
 instance FromJSON NowPlaying where
 --  parseJSON :: FromJSON NowPlaying => Value -> Parser NowPlaying
@@ -95,7 +87,6 @@ instance FromJSON NowPlaying where
       _ -> fail "Bad JSON"
   parseJSON _ = fail "Really bad JSON"
 
-
 -- The first arg to forM is a list of Objects
 -- The second is one that takes a list of Objects and extracts Text values from it.
 -- topicsArray :: Vector Value. You can get a [Value] from that using Data.Vector.toList
@@ -115,34 +106,39 @@ instance FromJSON Definition where
       _ -> fail "No array in related topics."
   parseJSON _ = fail "No JSON object in JSON file."
 
+newtype GIF = GIF URL deriving (Show)
 
 instance FromJSON GIF where
   parseJSON (Object d) = do
     dataObj <- d .: "data"
     case dataObj of
-      Array a ->
-        case V.toList a of
-          []    -> fail "Data Array is empty"
-          (x:_) -> case x of
-            Object b -> do
-              imagesObj <- b .: "images"
-              case imagesObj of
-                Object c -> do
-                  originalObj <- c .: "original"
-                  case originalObj of
-                    Object e -> fmap GIF $ e .: "url"
-                    _ -> fail " origial value is empty"
-                _ -> fail "original is empty"
-            _ -> fail "images is empty"
+      Array a  -> if (null a)
+          then fail "Data array is empty"
+          else do
+            case ((V.!) a (unsafePerformIO $ randomRIO (1, V.length a))) of
+              Object c -> do
+                originalObj <- c .: "original"
+                case originalObj of
+                  Object e -> GIF <$> e .: "url"
+                  _ -> fail " origial value is empty"
+              _ -> fail "original is empty"
       _ -> fail "data is empty"
-  parseJSON _ = fail "No JSON object in http response"
+  parseJSON invalidJSON = typeMismatch "Did not find JSON Object in config but found: " invalidJSON
 
--- config
-data Config = Config { network      :: String
+
+data Config = Config { server       :: String
                      , name         :: String
                      , channels     :: [String]
                      , wolframAlpha :: String
                      , lastFm       :: String
-                     } deriving (Show, Generic)
+                     } deriving (Show, Eq)
 
-instance FromJSON Config
+instance FromJSON Config where
+  parseJSON (Object v) = Config <$>
+                           v .: "server" <*>
+                           v .: "name" <*>
+                           v .: "channels" <*>
+                           v .: "wolframAlpha" <*>
+                           v .: "lastFm"
+  parseJSON invalidJSON =
+    typeMismatch "Did not find JSON Object in config but found: " invalidJSON

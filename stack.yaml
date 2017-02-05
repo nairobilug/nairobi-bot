@@ -1,13 +1,9 @@
-# Specifies the GHC version and set of packages available (e.g., lts-3.5, nightly-2015-09-21, ghc-7.10.2)
 resolver: lts-7.8
-
-# Local packages, usually specified by relative directory name
 packages:
 - '.'
-
-# Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps:
   - simpleirc-0.3.1
+  - posix-escape-0.1
   - tls-1.2.18
   - x509-1.5.1
   - x509-validation-1.5.2
@@ -15,8 +11,5 @@ extra-deps:
   - x509-store-1.5.0
   - x509-system-1.5.0
   - connection-0.2.4
-# Override default flag values for local packages and extra-deps
 flags: {}
-
-# Extra package databases containing global packages
 extra-package-dbs: []

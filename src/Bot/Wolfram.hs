@@ -16,8 +16,8 @@ import Text.HTML.TagSoup.Match
 import Data.Text.Encoding (decodeUtf8)
 
 import Bot.Types
-import Bot.Network (sendWaQuery)
-import Data.Bot.Config (getConfig)
+import Bot.Data.Network
+import Bot.Data.Config (getConfig)
 
 
 
@@ -34,14 +34,13 @@ waBot = proc (InMessage _ msg _ _) -> do
     getQuery :: Message -> Maybe Message
     getQuery query =
       case S.words query of
-        ("@wa": q) -> Just $ S.unwords q
-        _          -> Nothing
+        ("@wa": query') -> Just $ S.unwords query'
+        _               -> Nothing
 
     getWolfram :: Message -> IO Message
     getWolfram query = fmap unpack $ wolfram query
 
-    wolfram :: String  -- | Query
-            -> IO Text -- | IO result
+    wolfram :: Query -> IO Text
     wolfram query = do
       tagList <- getTagList $ pack query
 
@@ -58,16 +57,9 @@ waBot = proc (InMessage _ msg _ _) -> do
                Nothing     -> return errorText
         else return errorText
 
-{-
-   Parsing and the heavy lifting.
--}
-
 appID :: IO Text
 appID = do
-  conf' <- getConfig
-  let conf = case conf' of
-               Just c -> c
-               Nothing -> Config "" "" [] "" "" -- Fail silently because the configs are not a must here.
+  conf <- getConfig "config.yml"
   return $ pack $ wolframAlpha conf
 
 
@@ -75,9 +67,13 @@ getTagList :: Text -> IO [Tag L.ByteString]
 getTagList query = do
   key' <- appID
   key <- case key' of
-             "" -> fail "You haven't set your wolfram alpha API key. Fix your config.yaml."
-             k -> return k
-  fmap parseTags (sendWaQuery query key)
+           "" -> fail "Set your wolfram alpha API key. Fix your config.yaml."
+           k -> return k
+  eitherResponse <-
+    safeGetWith "http://api.wolframalpha.com/v2/query?" query key
+  case eitherResponse of
+    Left _     -> return []
+    Right resp -> return $ parseTags $ L.fromStrict $ body $ parseResponse resp
 
 matchAttr :: [Attribute L.ByteString] -> Bool
 matchAttr [] = False
@@ -87,4 +83,4 @@ matchAttr (x:xs)
 
 matchPlainText :: [Attribute L.ByteString] -> Bool
 matchPlainText [] = True
-matchPlainText _ = False
+matchPlainText _  = False
