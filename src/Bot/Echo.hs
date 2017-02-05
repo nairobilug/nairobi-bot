@@ -4,9 +4,7 @@ module Bot.Echo where
 import Control.Auto
 import Prelude hiding           ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Monad.IO.Class (MonadIO)
-
 import Bot.Types
-
 
 
 echoBot :: MonadIO m => RoomBot m
