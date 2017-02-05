@@ -3,7 +3,6 @@ packages:
 - '.'
 extra-deps:
   - simpleirc-0.3.1
-  - posix-escape-0.1
   - tls-1.2.18
   - x509-1.5.1
   - x509-validation-1.5.2

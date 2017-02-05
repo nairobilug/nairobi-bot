@@ -84,7 +84,6 @@ test-suite nairobi-bot-test
                      , nairobi-bot
                      , simpleirc
                      , wreq
-                     , posix-escape
                      , lens
                      , http-client
                      , http-types
