@@ -31,10 +31,6 @@ opts id' query = defaults
   & header (S.fromString "Accept") .~ [(Char8.pack "text/xml")]
   & param (T.pack "input") .~ [query] & param (T.pack "appid") .~ [id']
 
--- What to do in case of an empty or less than expected size response?
-truncateResponseBody :: Response LB.ByteString -> Response LB.ByteString
-truncateResponseBody = fmap (LB.take maxResponseSize)
-
 toMB :: ByteString -> String
 toMB "" = "unknown"
 toMB size =
@@ -42,15 +38,21 @@ toMB size =
       size' = read $ Char8.unpack size
   in (Prelude.take 4 $ show $ size'/kb)
 
+-- Truncates to 1MB
+parseResponseTruncated :: Response LB.ByteString -> BotResponse ByteString
+parseResponseTruncated resp =
+  let parsedResp = parseResponse resp
+      type'   = LB.toStrict $ contentType parsedResp
+      length' = LB.toStrict $ contentLength parsedResp
+      bod     = LB.toStrict $ LB.take maxResponseSize $ body parsedResp
+  in BotResponse bod type' length'
 
-parseResponse :: Response LB.ByteString -> BotResponse ByteString
+parseResponse :: Response LB.ByteString -> BotResponse LB.ByteString
 parseResponse resp =
-  let truncatedResp = truncateResponseBody resp
-      type'   = resp ^. responseHeader contentTypeResponseHeader
-      length' = resp ^. responseHeader contentLengthResponseHeader
-      truncatedBody = LB.toStrict $ truncatedResp ^. responseBody
+  let type'   = LB.fromStrict $ resp ^. responseHeader contentTypeResponseHeader
+      length' = LB.fromStrict $ resp ^. responseHeader contentLengthResponseHeader
+      truncatedBody = resp ^. responseBody
   in BotResponse truncatedBody type' length'
-
 
 safeGet :: URL ->  IO (Either T.Text (Response LB.ByteString))
 safeGet url = do

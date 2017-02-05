@@ -73,7 +73,7 @@ getTagList query = do
     safeGetWith "http://api.wolframalpha.com/v2/query?" query key
   case eitherResponse of
     Left _     -> return []
-    Right resp -> return $ parseTags $ L.fromStrict $ body $ parseResponse resp
+    Right resp -> return $ parseTags $ body $ parseResponse resp
 
 matchAttr :: [Attribute L.ByteString] -> Bool
 matchAttr [] = False

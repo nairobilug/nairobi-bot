@@ -44,4 +44,5 @@ defineBot = proc (InMessage _ msg _ _) -> do
         eitherResponse <- safeGet url
         case eitherResponse of
           Left ex -> return $ "Define failed due to " ++ unpack ex
-          Right resp -> return $ showMaybeDef $ decode $ LB.fromStrict $ body $ parseResponse resp
+          Right resp -> return $ showMaybeDef $ decode $ body $
+                                parseResponse resp

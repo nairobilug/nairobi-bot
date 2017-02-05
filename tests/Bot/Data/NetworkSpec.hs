@@ -69,17 +69,19 @@ spec = describe "Network tests: " networkProperties
 
 propTruncateResponse :: TestResponse -> Bool
 propTruncateResponse (TestResponse resp) =
-  let truncatedResponse = truncateResponseBody resp
-  in (LB.length $ truncatedResponse ^. responseBody) <=
-     (LB.length $ exampleResponse ^. responseBody)
+  let parsedResp = parseResponseTruncated resp
+      len = resp ^. responseHeader contentLengthResponseHeader
+      typ = resp ^. responseHeader contentTypeResponseHeader
+      truncatedBod = LB.toStrict $ LB.take maxResponseSize $ resp ^. responseBody
+  in parsedResp == BotResponse truncatedBod typ len
 
 propParseResponse :: TestResponse -> Bool
 propParseResponse (TestResponse resp) =
    let parsedResp = parseResponse resp
-       len = resp ^. responseHeader contentLengthResponseHeader
-       typ = resp ^. responseHeader contentTypeResponseHeader
-       truncatedBod = LB.toStrict  $ truncateResponseBody resp ^. responseBody
-   in parsedResp == BotResponse truncatedBod typ len
+       len = LB.fromStrict $ resp ^. responseHeader contentLengthResponseHeader
+       typ = LB.fromStrict $ resp ^. responseHeader contentTypeResponseHeader
+       bod = resp ^. responseBody
+   in parsedResp == BotResponse bod typ len
 
 networkProperties :: Spec
 networkProperties =

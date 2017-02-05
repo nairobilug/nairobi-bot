@@ -72,6 +72,6 @@ pageDetails :: URL -> IO [T.Text]
 pageDetails url = do
   eitherResponse <- safeGet url
   case eitherResponse of
-    Right response -> return $ handleResponse $ parseResponse response
+    Right response -> return $ handleResponse $ parseResponseTruncated response
     Left  err ->
      return $ [(T.pack $ "Fetching URL data failed due to " ++ show err)]

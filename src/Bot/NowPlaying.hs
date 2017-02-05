@@ -91,9 +91,8 @@ npBot = proc InMessage {..} -> do
 
       case eitherResponse of
         Left ex    -> return $ "Now playing failed due to " ++ unpack ex
-        Right resp ->
-          return $ ((++) nick') $ showMaybeNP $ decode $ LB.fromStrict $ body $
-            parseResponse resp
+        Right resp -> return $ ((++) nick') $ showMaybeNP $ decode $ body $
+                             parseResponse resp
 
 appID :: IO String
 appID = do
