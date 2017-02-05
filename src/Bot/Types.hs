@@ -106,25 +106,29 @@ instance FromJSON Definition where
       _ -> fail "No array in related topics."
   parseJSON _ = fail "No JSON object in JSON file."
 
-newtype GIF = GIF URL deriving (Show)
+newtype GIF = GIF {gifURL :: URL} deriving (Show)
 
 instance FromJSON GIF where
   parseJSON (Object d) = do
     dataObj <- d .: "data"
     case dataObj of
-      Array a  -> if (null a)
-          then fail "Data array is empty"
-          else do
-            case ((V.!) a (unsafePerformIO $ randomRIO (1, V.length a))) of
-              Object c -> do
-                originalObj <- c .: "original"
-                case originalObj of
-                  Object e -> GIF <$> e .: "url"
-                  _ -> fail " origial value is empty"
-              _ -> fail "original is empty"
+      Array a ->
+        case V.toList a of
+          [] -> fail "Data Array is empty"
+          lst ->
+            case lst!!(unsafePerformIO $ randomRIO (0, (length lst - 1))) of
+              Object b -> do
+                imagesObj <- b .: "images"
+                case imagesObj of
+                  Object c -> do
+                    originalObj <- c .: "original"
+                    case originalObj of
+                      Object e -> fmap GIF $ e .: "url"
+                      _ -> fail " origial value is empty"
+                  _ -> fail "original is empty"
+              _ -> fail "images is empty"
       _ -> fail "data is empty"
   parseJSON invalidJSON = typeMismatch "Did not find JSON Object in config but found: " invalidJSON
-
 
 data Config = Config { server       :: String
                      , name         :: String

@@ -1,6 +1,11 @@
 module Bot.TypesSpec where
 
 import Test.Hspec
+import Data.Aeson
+import Bot.Types
+import qualified Data.ByteString.Lazy as LBS
+import Data.List
+
 
 spec :: Spec
 spec = describe "Type tests: " parseJSONTests
@@ -14,7 +19,7 @@ parseJSONTests = do
     it "Definition" $
        pending
   describe "GIF parseJSON instance makes sense." $ do
-    it "Reurns successfully decodes GIF JSON" $
-      pending
-    it "Has a gif ending in .gif" $
-      pending
+    it "Successfully decodes GIF JSON" $ do
+      jsonGIF <- LBS.readFile "tests/Bot/GIF.json"
+      let (Just gif) = decode jsonGIF
+      isInfixOf "://" (gifURL gif) `shouldBe` True

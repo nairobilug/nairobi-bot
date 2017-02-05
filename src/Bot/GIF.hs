@@ -4,21 +4,17 @@ module Bot.GIF where
 import Data.Aeson (decode)
 import Prelude hiding ((.), id)   -- we use (.) and id from `Control.Category`
 import Control.Auto
-
 import Data.List (intersperse)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Auto.Effects (arrMB)
 import qualified Data.ByteString.Lazy as LB
 import Data.Text (unpack)
-
 import Bot.Types
 import Bot.Data.Network
 
 
-
 gifBot :: MonadIO m => RoomBot m
 gifBot = proc (InMessage _ msg _ _) -> do
-  -- | Check whether request is a definition request.
   blipRequest <- emitJusts getRequest -< msg
 
   blipDef <- arrMB (liftIO . getGIF) -< blipRequest
@@ -42,6 +38,5 @@ gifBot = proc (InMessage _ msg _ _) -> do
         "http://api.giphy.com/v1/gifs/search?q="++q++"&api_key=dc6zaTOxFJmzC"
       case eitherResponse of
         Left ex -> return $ "Fetching GIF failed due to " ++ unpack ex
-        Right resp ->
-          return $ showMaybeGIF $ decode $ LB.fromStrict $ body $
-            parseResponse resp
+        Right resp -> return $ showMaybeGIF $ decode $ body $
+                               parseResponse resp
