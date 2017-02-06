@@ -44,7 +44,7 @@ urlBot = proc (InMessage _ msg _ _) -> do
 
     urlList :: [URL] -> IO [T.Text]
     urlList []  = return []
-    urlList lst = fmap join $ mapM pageDetails lst
+    urlList lst = fmap join $ mapM pageDetails $ L.filter isStringUrl lst
 
 extractTitle :: ByteString -> String
 extractTitle html =
