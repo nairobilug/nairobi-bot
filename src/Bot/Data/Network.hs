@@ -16,9 +16,9 @@ import Data.Text as T
 import Numeric
 import Network.HTTP.Client (HttpException(..))
 
--- Use a max 1 MB response
+-- Use a max 100 MB response
 maxResponseSize :: Int64
-maxResponseSize = 1024^3
+maxResponseSize = 100*1024^2
 
 contentTypeResponseHeader :: HeaderName
 contentTypeResponseHeader = "Content-Type"
@@ -35,12 +35,13 @@ opts id' query = defaults
 convertBytes :: ByteString -> String
 convertBytes "" = "unknown"
 convertBytes size =
-  let kb = 1024^2 :: Double
-      mb = 1024^3 :: Double
-      size' = read $ Char8.unpack size
-  in if size' <= kb
-       then (Prelude.take 4 $ showFFloat Nothing (size'/kb) "") ++ " KB"
-       else (Prelude.take 4 $ showFFloat Nothing (size'/mb) "") ++ " MB"
+  let kb       = 1024 :: Double
+      mb        = 1024^2 :: Double
+      size'     = read $ Char8.unpack size
+      div' den = (Prelude.take 4 $ showFFloat Nothing (size'/den) "")
+  in if size' <= mb
+       then div' kb ++ " KB"
+       else div' mb ++ " MB"
 
 -- Truncates to 1MB
 parseResponseTruncated :: Response LB.ByteString -> BotResponse ByteString

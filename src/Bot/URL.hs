@@ -61,10 +61,11 @@ extractTitle html =
 handleResponse :: BotResponse ByteString -> [T.Text]
 handleResponse BotResponse{..} =
   if isHTML
-     then htmlText (extractTitle body) (convertBytes contentLength)
+     then htmlText (T.strip $ T.pack $ extractTitle body)
+                   (convertBytes contentLength)
      else anyOther contentType (convertBytes contentLength)
   where isHTML = Char8.isInfixOf "text/html" contentType
-        htmlText title s = [T.pack $ printf "Size: [%s] Title: [ %s ]" s (T.strip $ T.pack title)]
+        htmlText title s = [T.pack $ printf "Size: [%s] Title: [%s]" s title]
         anyOther typ s   = [T.pack $ printf "Content-Type: [%s] Size: [%s]"
                                             (Char8.unpack typ) s]
 
