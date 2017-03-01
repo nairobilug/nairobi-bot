@@ -65,7 +65,21 @@ main :: IO ()
 main = hspec spec
 
 spec :: Spec
-spec = describe "Network tests: " networkProperties
+spec = describe "Network tests: " $ do
+  networkProperties
+  networkUnitTests
+
+
+networkUnitTests :: Spec
+networkUnitTests =
+  describe "Converts Bytes to expected unit correctly." $ do
+    it "Converts to MB" $ do
+       convertBytes "4574545" `shouldBe` "4.36 MB"
+    it "Converts to KB" $ do
+       convertBytes "74545" `shouldBe` "72.7 KB"
+    it "Returns \"unknown\" for empty content length" $
+       convertBytes "" `shouldBe` "unknown"
+
 
 propTruncateResponse :: TestResponse -> Bool
 propTruncateResponse (TestResponse resp) =
