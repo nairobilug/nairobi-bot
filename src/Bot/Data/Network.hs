@@ -13,6 +13,7 @@ import Data.ByteString.Char8 as Char8
 import qualified Data.String as S
 import Bot.Types
 import Data.Text as T
+import Numeric
 import Network.HTTP.Client (HttpException(..))
 
 -- Use a max 1 MB response
@@ -31,12 +32,15 @@ opts id' query = defaults
   & header (S.fromString "Accept") .~ [(Char8.pack "text/xml")]
   & param (T.pack "input") .~ [query] & param (T.pack "appid") .~ [id']
 
-toMB :: ByteString -> String
-toMB "" = "unknown"
-toMB size =
+convertBytes :: ByteString -> String
+convertBytes "" = "unknown"
+convertBytes size =
   let kb = 1024^2 :: Double
+      mb = 1024^3 :: Double
       size' = read $ Char8.unpack size
-  in (Prelude.take 4 $ show $ size'/kb)
+  in if size' <= kb
+       then (Prelude.take 4 $ showFFloat Nothing (size'/kb) "") ++ " KB"
+       else (Prelude.take 4 $ showFFloat Nothing (size'/mb) "") ++ " MB"
 
 -- Truncates to 1MB
 parseResponseTruncated :: Response LB.ByteString -> BotResponse ByteString

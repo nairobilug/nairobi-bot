@@ -61,7 +61,7 @@ In production use the following [answer from stackoverflow](http://stackoverflow
 4. & at the end means: run this command as a background task.
 
 #### License
-BSD3.
+GPL-3.0
 See [LICENSE](https://github.com/nairobilug/nairobi-bot/blob/master/LICENSE) file for complete license.
 
 #### Other/RTFM
