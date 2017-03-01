@@ -61,12 +61,12 @@ extractTitle html =
 handleResponse :: BotResponse ByteString -> [T.Text]
 handleResponse BotResponse{..} =
   if isHTML
-     then htmlText (extractTitle body) (toMB contentLength)
-     else anyOther contentType (toMB contentLength)
+     then htmlText (extractTitle body) (convertBytes contentLength)
+     else anyOther contentType (convertBytes contentLength)
   where isHTML = Char8.isInfixOf "text/html" contentType
-        htmlText title s = [T.pack $ printf "Size: [%s MB] Title: [%s]" s title]
-        anyOther typ s = [T.pack $ printf "Content-Type: [%s] Size: [%s MB]"
-                                           (Char8.unpack typ) s]
+        htmlText title s = [T.pack $ printf "Size: [%s] Title: [ %s ]" s (T.strip $ T.pack title)]
+        anyOther typ s   = [T.pack $ printf "Content-Type: [%s] Size: [%s]"
+                                            (Char8.unpack typ) s]
 
 pageDetails :: URL -> IO [T.Text]
 pageDetails url = do
