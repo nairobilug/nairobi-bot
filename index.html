@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>nairobi-bot</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/solarized-dark.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+                <section data-background-image="">
+                    <a href="http://github.com/nairobilug/nairobi-bot">nairobi-bot</a>
+                    <p>Presented by: <a href="http://github.com/urbanslug/">Njagi Mwaniki (urbanslug)</a></p>
+                </section>
+				<section>
+                    <p>What is it?</p>
+                    <p>Just another IRC bot.</p>
+                </section>
+                <section>
+                    <section><h3>Features/Commands</h3></section>
+
+                    <section>Last seen
+<pre><code>@seen nick</code></pre>
+                    </section>
+                    <section>Definitions
+<pre><code>@define word</code></pre>
+                    </section>
+                    <section data-background-image="https://media.giphy.com/media/H7INWHH4CnbuE/source.gif">
+                        <p>GIFs</p>
+                        <p>Yaaaaay! It supports gifs!!</p>
+                        <p>Insipred by slackbot giphy requested by <a href="https://github.com/jasonrogena">Jason Rogena</a></p>
+<pre><code>@gif search term</code></pre>
+                    </section>
+                    <section>
+                        <img src="https://i.imgur.com/guNqaSX.png"></img>
+                    </section>
+                    <section>Wolfram Alpha
+<pre><code>@wa search term</code></pre>
+                    </section>
+                    <section>Factoids
+<pre>
+<code>@factoid factoid-name factoid-info
+!factoid-name
+</code></pre>
+                    </section>
+
+                    <section>Now Playing
+<pre>
+<code>@np
+@np set last.fm username
+@np last.fm username
+</code></pre>
+                    </section>
+                    <section>Reputation
+<pre>
+<code>@rep nick
++1 nick
+-1 nick
+</code></pre>
+                    </section>
+                    <section>Echo
+<pre><code>@echo stuff to echo</code></pre>
+                    </section>
+                    <section>
+                        <p>URLs</p> 
+                        <p>Fetches metadata from URLs</p>
+                        <ul>
+                            <li>HTML page titles</li>
+                            <li>Type</li>
+                            <li>Size/Content-Length</li>
+                        </ul>
+                    </section>
+                    <section>Help
+<pre><code>@help</code></pre>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h3>Design choices</h3>
+                    </section>
+                     <section>
+                         <p>Main deps</p>
+                         <ul>
+                             <li><a href="https://hackage.haskell.org/package/auto">Auto</a></li>
+                             <li><a href="https://hackage.haskell.org/package/simpleirc">SimpleIRC</a></li>
+                         </ul>
+                    </section>
+                    <section>
+                        <p>Why Haskell/Functional Programming for something that is inherently stateful?</p>
+                    </section>
+                     <section>
+                        <p>Laziness</p>
+                        <p>Common "feature" of data structures in functional languages</p>
+<pre><code>-- haskell REPL example
+λ> let invalidIntList = [1,2,3,4,5,undefined] :: [Integer]
+
+λ> length invalidIntList
+6
+
+λ> take 5 invalidIntList
+[1,2,3,4,5]
+
+λ> take 6 invalidIntList
+[1,2,3,4,5,*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:79:14 in base:GHC.Err
+  undefined, called at <interactive>:7:33 in interactive:Ghci1
+</code></pre>
+                    </section>
+                    <section>
+                        <p><a href="https://hackage.haskell.org/package/bytestring-0.10.6.0/docs/Data-ByteString.html">ByteString</a></p>
+                        <p>Lazy ByteString when reading over the network.</p>
+                        <ul>
+                            <li>Lazy ByteString - linked list of strict bytestrings</li>
+                            <li>Strict ByteString - whole thing in memory</li>
+                        </ul>
+                        <p>&nbsp;</p>
+                        <i>Almost certain that wreq will read the whole response into memory, *even if* you choose lazy ByteString.</i>
+                    </section>
+                    <section>
+                        <p><a href="http://hackage.haskell.org/package/text-0.11.2.3/docs/Data-Text.html">Text</a></p>
+                        <p>A time and space-efficient implementation of Unicode text.</p>
+                        <p>To represent large amounts of text.</p>
+                        <ul>
+                            <li>Lazy Text</li>
+                            <li>Strict Text</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>Lack of persistence (not a design choice)</p>
+                        <ul>
+                            <li>Not high priority</li>
+                            <li>Haven't figured it out yet</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>Config</p>
+                        <p>YAML is easy to do</p>
+<pre><code># Example config.yaml
+# Bot specific
+server: irc.freenode.net
+name:   nai-bot
+channels:
+- "#homez"
+- "##zippy-chan"
+
+# API keys
+wolframAlpha: wak3y
+lastFm: lfmk3y 
+</code></pre>
+                    </section>
+                    <section>
+                        <p>Roombots</p>
+                        <ul>
+                            <li>Modularity</li>
+                            <li>Easy to reason about</li>
+                            <li>Easy to work on in isolation/parallel</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>Testing</p>
+                        <ul>
+                            <li>Unit tests (hspec)</li>
+                            <li>Property based tests (QuickCheck)</li>
+                            <li>Not mocking network calls, yet.</li>
+                        </ul>
+                    </section>
+                     <section>
+                        <p>Best Practices</p>
+                        <ul>
+                            <li>Continuous Integration tests</li>
+                            <li>Block merges with failing tests</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>State</p>
+                        <p>Handled by <a href="http://hackage.haskell.org/package/auto">Auto</a></p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Deployment</h3>
+                    </section>
+                    <section>
+                        <p><a href="http://docs.ansible.com/">Ansible</a></p>
+                    </section>
+                    <section>
+                        <p><a href="https://docs.haskellstack.org/en/stable/README/">The Haskell Tool Stack</a></p>
+<pre>
+<code># Install Stack using ansible
+- name:          install stack
+  become:        true
+  become_user:   root
+  become_method: sudo
+  pacman:        pkg=stack state=present
+</code></pre>
+                    </section>
+                    <section>
+                        <p>Clone nairobi-bot</p>
+<pre>
+<code>- name: clone nairobi-bot
+  git:  repo="https://{{ githubuser | urlencode }}:{{ githubpassword }}@github.com/nairobilug/nairobi-bot.git"
+        clone=yes
+        dest={{ haskell_src_dir }}/nairobi-bot
+</code></pre>
+                    </section>
+                    <section>
+                        <p>I then do the rest over mosh/ssh but it's easy to automate.</p>
+<pre>
+<code># Fix your config.yaml
+stack build
+
+# stack installs binaries in ~/.local/bin
+stack install
+
+# Given ~/.local/bin/ is in your PATH
+# When in the same dir as your config.yaml
+nairobi-bot
+
+# Run it in the background. I haven't actually done this.
+nairobi-bot > /dev/null 2>&1 &
+</code></pre>
+                    </section>
+
+
+               </section>
+
+
+<!--  -->
+
+<!--  -->
+<!--  -->
+<!--  -->
+                <section>
+                    <section>
+                         <h3>The future</h3>
+                    </section>
+                    <section>
+                        <h3>Decouple from underlying protocol (IRC)</h3>
+                        <p>Target more platforms e.g slack</p>
+                    </section>
+                    <section>
+                         <h3>Websocket</h3>
+                         <p>The most widely supported protocol for bots right now (citation needed).</p>
+                    </section>
+                    <section>
+                         <h3>Persistence</h3>
+                         <ul>
+                             <li>Postgres</li>
+                             <li>Others</li>
+                         </ul>
+                    </section>
+                    <section>
+                         <h3>Translations</h3>
+                         <ul>
+                             <li>Pull out all the text</li>
+                             <li>Make it framework-y</li>
+                         </ul>
+                    </section>
+                     <section>
+                         <h3>Performance Tests</h3>
+                         <ul>
+                             <li>Speed</li>
+                             <li>Resource usage</li>
+                         </ul>
+                    </section>
+                    <section>
+                         <h3>AI/Machine Learning</h3>
+                         <ul>
+                             <li>wit.ai, by Facebook.</li>
+                             <li>api.ai, by Google.</li>
+                         </ul>
+                    </section>
+                </section>
+                <section>
+                    <h3>Questions?<h3>
+                </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html#586e75>
