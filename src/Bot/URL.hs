@@ -37,7 +37,8 @@ urlBot = proc (InMessage _ msg _ _) -> do
          else Nothing
 
     isStringUrl :: String -> Bool
-    isStringUrl str = "://" `L.isInfixOf` str
+    isStringUrl str =
+      "http://" `L.isInfixOf` str || "https://" `L.isInfixOf` str
 
     getTitle :: Message -> IO [Message]
     getTitle msg = (fmap . fmap) T.unpack $ urlList $ S.words msg
