@@ -16,6 +16,7 @@ import qualified Data.List as L
 import Text.HTML.TagSoup
 import Text.HTML.TagSoup.Match
 import Text.Printf
+import Data.Text.Encoding
 
 
 urlBot :: MonadIO a => RoomBot a
@@ -49,12 +50,12 @@ urlBot = proc (InMessage _ msg _ _) -> do
 
 extractTitle :: ByteString -> String
 extractTitle html =
-  let tagList = parseTagsOptions parseOptions{optTagPosition = True} html
-      title = "title" :: ByteString
+  let tagList = parseTagsOptions parseOptions{optTagPosition = True} $ decodeUtf8 html
+      title = "title" :: T.Text
       hasHeadTag =
         foldr (||) False  $ Prelude.map (isTagOpenName title) tagList
       titleTag =
-        Char8.unpack $ renderTagsOptions renderOptions{optEscape = id} $ getTagContent title (const True) tagList
+        T.unpack $ renderTagsOptions renderOptions{optEscape = id} $ getTagContent title (const True) tagList
   in if hasHeadTag
         then titleTag
         else "Page title not found."
