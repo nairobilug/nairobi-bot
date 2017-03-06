@@ -68,7 +68,7 @@ handleResponse BotResponse{..} =
      else anyOther contentType (convertBytes contentLength)
   where lowerCaseContentType = T.toLower $ decodeUtf8 contentType
         isHTML = T.isInfixOf "text/html" lowerCaseContentType
-        isUtf8 = Char8.isInfixOf "utf-8" contentType || Char8.isInfixOf "utf8" contentType
+        isUtf8 = T.isInfixOf "utf-8" lowerCaseContentType || T.isInfixOf "utf8" lowerCaseContentType
         htmlText title s = printf "Size: [%s] Title: [%s]" s title
         anyOther typ s   = printf "Content-Type: [%s] Size: [%s]" (Char8.unpack typ) s
 
