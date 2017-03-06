@@ -16,6 +16,7 @@ import qualified Data.List as L
 import Text.HTML.TagSoup
 import Text.HTML.TagSoup.Match
 import Text.Printf
+import Data.Text.Encoding
 
 
 urlBot :: MonadIO a => RoomBot a
@@ -37,42 +38,44 @@ urlBot = proc (InMessage _ msg _ _) -> do
          else Nothing
 
     isStringUrl :: String -> Bool
-    isStringUrl str = "://" `L.isInfixOf` str
+    isStringUrl str =
+      "http://" `L.isInfixOf` str || "https://" `L.isInfixOf` str
 
     getTitle :: Message -> IO [Message]
-    getTitle msg = (fmap . fmap) T.unpack $ urlList $ S.words msg
+    getTitle msg = urlList $ S.words msg
 
-    urlList :: [URL] -> IO [T.Text]
+    urlList :: [URL] -> IO [String]
     urlList []  = return []
-    urlList lst = fmap join $ mapM pageDetails $ L.filter isStringUrl lst
+    urlList lst = mapM pageDetails $ L.filter isStringUrl lst
 
 extractTitle :: ByteString -> String
 extractTitle html =
-  let tagList = parseTags html
-      title = "title" :: ByteString
+  let tagList = parseTagsOptions parseOptions{optTagPosition = True} $ decodeUtf8 html
+      title = "title" :: T.Text
       hasHeadTag =
         foldr (||) False  $ Prelude.map (isTagOpenName title) tagList
       titleTag =
-        Char8.unpack $ renderTags $ getTagContent title (const True) tagList
+        T.unpack $ renderTagsOptions renderOptions{optEscape = id} $ getTagContent title (const True) tagList
   in if hasHeadTag
         then titleTag
         else "Page title not found."
 
-handleResponse :: BotResponse ByteString -> [T.Text]
+handleResponse :: BotResponse ByteString -> String
 handleResponse BotResponse{..} =
-  if isHTML
+  if isHTML && isUtf8
      then htmlText (T.strip $ T.pack $ extractTitle body)
                    (convertBytes contentLength)
      else anyOther contentType (convertBytes contentLength)
-  where isHTML = Char8.isInfixOf "text/html" contentType
-        htmlText title s = [T.pack $ printf "Size: [%s] Title: [%s]" s title]
-        anyOther typ s   = [T.pack $ printf "Content-Type: [%s] Size: [%s]"
-                                            (Char8.unpack typ) s]
+  where lowerCaseContentType = T.toLower $ decodeUtf8 contentType
+        isHTML = T.isInfixOf "text/html" lowerCaseContentType
+        isUtf8 = T.isInfixOf "utf-8" lowerCaseContentType || T.isInfixOf "utf8" lowerCaseContentType
+        htmlText title s = printf "Size: [%s] Title: [%s]" s title
+        anyOther typ s   = printf "Content-Type: [%s] Size: [%s]" (Char8.unpack typ) s
 
-pageDetails :: URL -> IO [T.Text]
+pageDetails :: URL -> IO String
 pageDetails url = do
   eitherResponse <- safeGet url
   case eitherResponse of
     Right response -> return $ handleResponse $ parseResponseTruncated response
-    Left  err ->
-     return $ [(T.pack $ "Fetching URL data failed due to " ++ show err)]
+    Left  _        -> return "Page title not found."
+     -- return $ fmap T.unpack  $ [(T.pack $ "Fetching URL data failed due to " ++ show err)]

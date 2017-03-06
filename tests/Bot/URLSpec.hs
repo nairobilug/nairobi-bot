@@ -6,10 +6,10 @@ import Test.Hspec
 import Test.QuickCheck
 import Bot.Types
 import Data.ByteString hiding (any, concat)
-import qualified Data.Text as T
 import Data.Time.Clock
 import Control.Auto
 import Control.Auto.Blip.Internal
+import qualified Data.List as L
 
 
 newtype TestBotResponse = TestBotResponse
@@ -34,11 +34,11 @@ instance Arbitrary TestBotResponse where
 
 propHandleResponse :: TestBotResponse  -> Bool
 propHandleResponse resp =
-  let texty = T.unwords $ handleResponse $ getTestBotResponse resp
+  let texty = handleResponse $ getTestBotResponse resp
       contentType' = contentType $ getTestBotResponse resp
-  in if (any (== contentType') ["text/html", "text/html; charset=utf-8"])
-        then (T.isInfixOf "Title: " texty) == True
-        else (T.isInfixOf "Content-Type: " texty) == True
+  in if (any (== contentType') ["text/html; charset=utf-8"])
+        then (L.isInfixOf "Title: " texty) == True
+        else (L.isInfixOf "Content-Type: " texty) == True
 
 main :: IO ()
 main = hspec spec
@@ -64,5 +64,5 @@ botTests = do
 urlTests :: Spec
 urlTests = do
   describe "Extracts URL details given a URL" $ do
-    it "Has Title for type html and Content-Type for anything else" $
+    it "Has Title for type utf8 html and Content-Type for anything else" $
       property $ forAll (arbitrary :: Gen TestBotResponse) propHandleResponse
