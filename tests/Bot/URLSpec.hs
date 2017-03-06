@@ -36,7 +36,7 @@ propHandleResponse :: TestBotResponse  -> Bool
 propHandleResponse resp =
   let texty = handleResponse $ getTestBotResponse resp
       contentType' = contentType $ getTestBotResponse resp
-  in if (any (== contentType') ["text/html", "text/html; charset=utf-8"])
+  in if (any (== contentType') ["text/html; charset=utf-8"])
         then (L.isInfixOf "Title: " texty) == True
         else (L.isInfixOf "Content-Type: " texty) == True
 
@@ -64,5 +64,5 @@ botTests = do
 urlTests :: Spec
 urlTests = do
   describe "Extracts URL details given a URL" $ do
-    it "Has Title for type html and Content-Type for anything else" $
+    it "Has Title for type utf8 html and Content-Type for anything else" $
       property $ forAll (arbitrary :: Gen TestBotResponse) propHandleResponse
