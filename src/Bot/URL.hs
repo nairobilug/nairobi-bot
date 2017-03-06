@@ -62,11 +62,13 @@ extractTitle html =
 
 handleResponse :: BotResponse ByteString -> String
 handleResponse BotResponse{..} =
-  if isHTML
+  if isHTML && isUtf8
      then htmlText (T.strip $ T.pack $ extractTitle body)
                    (convertBytes contentLength)
      else anyOther contentType (convertBytes contentLength)
-  where isHTML = Char8.isInfixOf "text/html" contentType
+  where lowerCaseContentType = T.toLower $ decodeUtf8 contentType
+        isHTML = T.isInfixOf "text/html" lowerCaseContentType
+        isUtf8 = Char8.isInfixOf "utf-8" contentType || Char8.isInfixOf "utf8" contentType
         htmlText title s = printf "Size: [%s] Title: [%s]" s title
         anyOther typ s   = printf "Content-Type: [%s] Size: [%s]" (Char8.unpack typ) s
 
